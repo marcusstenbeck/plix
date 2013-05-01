@@ -33,12 +33,8 @@ define([
         var player = Creator.createEntity({
             type: 'player',
             position: {
-                x: 160,
-                y: 160
-            },
-            size: {
-                x: 16,
-                y: 16
+                x: 0,
+                y: 0
             },
             world: world
         });
@@ -201,15 +197,29 @@ define([
                     // GraphicsComponent
                     var graphicsComponent = entity.components.graphicsComponent;
 
-                    // Black color
-                    ctx.fillStyle = 'rgb(0, 0, 0)';
-                    // Entity position is centroid
-                    ctx.fillRect(
-                        entity.position.x - graphicsComponent.graphic.shapeData.width / 2,
-                        entity.position.y - graphicsComponent.graphic.shapeData.height / 2,
-                        graphicsComponent.graphic.shapeData.width,
-                        graphicsComponent.graphic.shapeData.height);
+                    var graphicType = graphicsComponent.graphic.type;
+                    if(graphicType == 'shape') {
+                        ctx.fillStyle = 'rgba(' +
+                            graphicsComponent.graphic.color[0] * 255 + ', ' +
+                            graphicsComponent.graphic.color[1] * 255 + ', ' +
+                            graphicsComponent.graphic.color[2] * 255 + ', ' +
+                            graphicsComponent.graphic.color[3] * 255 + ')';
 
+                        // Entity position is centroid
+                        ctx.fillRect(
+                            parseInt(entity.position.x - graphicsComponent.graphic.shapeData.width / 2),
+                            parseInt(entity.position.y - graphicsComponent.graphic.shapeData.height / 2),
+                            graphicsComponent.graphic.shapeData.width,
+                            graphicsComponent.graphic.shapeData.height);
+                    } else if(graphicType == 'sprite') {
+
+                        // Entity position is centroid
+                        ctx.drawImage(
+                            graphicsComponent.graphic.spriteData,
+                            parseInt(entity.position.x - graphicsComponent.graphic.spriteData.width / 2),
+                            parseInt(entity.position.y - graphicsComponent.graphic.spriteData.height / 2)
+                        );
+                    }
                 }
             }
         },

@@ -26,12 +26,12 @@ define([
     }
     PhysicsComponent.prototype = Object.create(Component.prototype);
 
+    PhysicsComponent.prototype.receiveMessage = function(message) {};
 
-    /*
-     PhysicsComponent.prototype.receiveMessage = function(message) {
-     console.warn(this, 'receiveMessage() not implemented');
-     };
-     */
+    PhysicsComponent.prototype.setEntity = function(entity) {
+        this.entity = entity;
+        this.body.position = entity.position;
+    };
 
     return PhysicsComponent;
 });

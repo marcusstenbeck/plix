@@ -12,18 +12,14 @@ define([
             color: [0, 1, 0, 1],
             shapeData: {
                 type: 'rectangle',
-                width: 16,
-                height: 16
+                width: 32,
+                height: 32
             }
         };
     }
     GraphicsComponent.prototype = Object.create(Component.prototype);
 
-    /*
-    GraphicsComponent.prototype.receiveMessage = function(message) {
-        console.warn(this, 'receiveMessage() not implemented');
-    };
-    */
+    GraphicsComponent.prototype.receiveMessage = function(message) {};
 
     return GraphicsComponent;
 });

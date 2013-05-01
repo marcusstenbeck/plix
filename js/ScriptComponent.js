@@ -18,5 +18,7 @@ define([
         }
     };
 
+    ScriptComponent.prototype.receiveMessage = function(message) {};
+
     return ScriptComponent;
 });

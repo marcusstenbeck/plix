@@ -30,11 +30,6 @@ define([
 
         playerEntity.type = parameters.type;
 
-        playerEntity.size = {
-            x: parameters.size.x || 1,
-            y: parameters.size.y || 1
-        };
-
         playerEntity.position = {
             x: parameters.position.x || 0,
             y: parameters.position.y || 0
@@ -47,6 +42,12 @@ define([
 
 
         var graphics = new GraphicsComponent();
+        var image = new Image();
+        image.src = 'image/robot.png';
+        graphics.graphic = {
+            type: 'sprite',
+            spriteData: image
+        };
         playerEntity.setComponent(graphics);
 
 
@@ -80,6 +81,7 @@ define([
 
                 entity.components.physicsComponent.body.velocity = theVel;
 
+                entity.broadcastMessage('Pants!');
             }
         });
         playerEntity.setComponent(script);

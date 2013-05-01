@@ -12,13 +12,14 @@ define([
     }
 
     Entity.prototype.broadcastMessage = function(message) {
-        for(var i = 0; i < this.components.length; i++) {
-            this.components[i].receiveMessage(message);
-        }
+        var _this = this;
+        Object.keys(this.components).forEach(function(key) {
+            _this.components[key].receiveMessage(message);
+        });
     };
 
     Entity.prototype.setComponent = function(component) {
-        component.entity = this;
+        component.setEntity(this);
         this.components[component.type] = component;
     };
 
