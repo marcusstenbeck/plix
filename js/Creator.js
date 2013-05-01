@@ -1,11 +1,16 @@
 define([
-    'Entity'
+    'Entity',
+    'PhysicsComponent',
+    'GraphicsComponent',
+    'ScriptComponent'
 ], function(
-    Entity
+    Entity,
+    PhysicsComponent,
+    GraphicsComponent,
+    ScriptComponent
 ) {
-    function Creator() {
 
-    }
+    function Creator() {}
 
     Creator.createEntity = function(parameters) {
         var type = parameters.type || null;
@@ -35,50 +40,49 @@ define([
             y: parameters.position.y || 0
         };
 
-        playerEntity.velocity = {
-            x: 0,
-            y: 0
-        };
-
-        playerEntity.draw = function(ctx) {
-            if(this.intersect) ctx.fillStyle = 'rgb(255,125,125)';
-            else ctx.fillStyle = 'rgb(0,0,0)';
-            ctx.fillRect(this.position.x - this.size.x/2, this.position.y - this.size.y/2, this.size.x, this.size.y);
-        };
-
-        playerEntity.update = function() {
-            var acc = 0.01;
-            var topSpeed = 1;
 
 
-            var theVel = {
-                x: 0,
-                y: 0
-            };
+        var physics = new PhysicsComponent();
+        playerEntity.setComponent(physics);
 
-            var speed = 0.5;
 
-            if(this.world.input.keyboard.LEFT) {
-                theVel.x -= speed;
+        var graphics = new GraphicsComponent();
+        playerEntity.setComponent(graphics);
+
+
+        var script = new ScriptComponent();
+        script.scripts.push({
+            run: function(entity) {
+
+                var theVel = {
+                    x: 0,
+                    y: 0
+                };
+
+                var speed = 0.5;
+
+
+                if(entity.world.input.keyboard.LEFT) {
+                    theVel.x -= speed;
+                }
+
+                if(entity.world.input.keyboard.RIGHT) {
+                    theVel.x += speed;
+                }
+
+                if(entity.world.input.keyboard.UP) {
+                    theVel.y -= speed;
+                }
+
+                if(entity.world.input.keyboard.DOWN) {
+                    theVel.y += speed;
+                }
+
+                entity.components.physicsComponent.body.velocity = theVel;
+
             }
-
-            if(this.world.input.keyboard.RIGHT) {
-                theVel.x += speed;
-            }
-
-            if(this.world.input.keyboard.UP) {
-                theVel.y -= speed;
-            }
-
-            if(this.world.input.keyboard.DOWN) {
-                theVel.y += speed;
-            }
-
-            this.velocity = theVel;
-
-            this.position.x += this.velocity.x;
-            this.position.y += this.velocity.y;
-        };
+        });
+        playerEntity.setComponent(script);
 
         return playerEntity;
 

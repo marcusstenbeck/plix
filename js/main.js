@@ -43,6 +43,7 @@ define([
             world: world
         });
 
+        /*
         var obstacle = Creator.createEntity({
             type: 'obstacle',
             position: {
@@ -81,11 +82,11 @@ define([
             },
             world: world
         });
-
+          */
         // Add box1 and box2 to game entities array
-        world.entities.push(obstacle);
+        /*world.entities.push(obstacle);
         world.entities.push(obstacle2);
-        world.entities.push(obstacle3);
+        world.entities.push(obstacle3);*/
         world.entities.push(player);
 
 
@@ -159,9 +160,6 @@ define([
 
 
 
-
-
-
     var game = {
         status: null,
         state: 'ready',
@@ -175,28 +173,45 @@ define([
             game.status = window.setInterval(game.update, 1);
         },
         update: function() {
+            // Wipe the canvas clean
             ctx.clearRect(0, 0, world.width, world.height);
 
             if(game.state == 'running') {
                 for(var i = 0; i < world.entities.length; i++) {
+                    var entity = world.entities[i];
 
-                    // Remove previous intersects
-                    world.entities[i].intersect = [];
+                    // ScriptComponent
+                    var scriptComponent = entity.components.scriptComponent;
+                    scriptComponent.run();
 
-                    // Check for intersections
-                    for(var j = 0; j < world.entities.length; j++) {
-                        if(i != j && Util.intersectRect(world.entities[i], world.entities[j])) {
-                            world.entities[i].intersect.push(world.entities[j]);
-                        }
-                    }
 
-                    if(world.entities[i].update) world.entities[i].update();
-                    if(world.entities[i].draw) world.entities[i].draw(ctx);
+
+                    // PhysicsComponent
+                    var physicsComponent = entity.components.physicsComponent;
+
+                    // Increment physics
+                    physicsComponent.body.position.x += physicsComponent.body.velocity.x;
+                    physicsComponent.body.position.y += physicsComponent.body.velocity.y;
+
+                    // Copy the position to the entity
+                    entity.position = physicsComponent.body.position;
+
+
+
+                    // GraphicsComponent
+                    var graphicsComponent = entity.components.graphicsComponent;
+
+                    // Black color
+                    ctx.fillStyle = 'rgb(0, 0, 0)';
+                    // Entity position is centroid
+                    ctx.fillRect(
+                        entity.position.x - graphicsComponent.graphic.shapeData.width / 2,
+                        entity.position.y - graphicsComponent.graphic.shapeData.height / 2,
+                        graphicsComponent.graphic.shapeData.width,
+                        graphicsComponent.graphic.shapeData.height);
+
                 }
             }
-
-
-
         },
         end: function() {
             game.state = 'lose';

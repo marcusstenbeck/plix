@@ -5,7 +5,7 @@ define([
 ) {
 
     function Component() {
-
+        this.entity = null;
     }
 
     Component.prototype.receiveMessage = function(message) {
