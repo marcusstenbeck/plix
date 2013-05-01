@@ -18,6 +18,10 @@ define([
         canvas.width = document.width;
         canvas.height = document.height;
 
+        window.onresize = function() {
+            canvas.width = document.width;
+            canvas.height = document.height;
+        };
 
         world = {
             width: document.width,
@@ -33,8 +37,8 @@ define([
         var player = Creator.createEntity({
             type: 'player',
             position: {
-                x: 0,
-                y: 0
+                x: document.width/2,
+                y: document.height/2
             },
             world: world
         });
