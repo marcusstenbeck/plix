@@ -2,12 +2,14 @@ define([
     'Entity',
     'PhysicsComponent',
     'GraphicsComponent',
-    'ScriptComponent'
+    'ScriptComponent',
+    'Util'
 ], function(
     Entity,
     PhysicsComponent,
     GraphicsComponent,
-    ScriptComponent
+    ScriptComponent,
+    Util
 ) {
 
     function Creator() {}
@@ -18,9 +20,12 @@ define([
         switch(type) {
             case 'player':
                 return this._createPlayerEntity(parameters);
-            case 'obstacle':
-                return this._createObstacleEntity(parameters);
+            case 'bomb':
+                return this._createBombEntity(parameters);
+            case 'enemy':
+                return this._createEnemyEntity(parameters);
             default:
+                console.log('No factory for entity type:', type);
                 return null;
         }
     };
@@ -53,33 +58,77 @@ define([
 
         var script = new ScriptComponent();
         script.scripts.push({
-            run: function(entity) {
+            run: function(entity, tpf) {
 
                 var theVel = {
                     x: 0,
                     y: 0
                 };
 
-                var speed = 0.5;
 
 
-                if(entity.world.input.keyboard.LEFT) {
-                    theVel.x -= speed;
+
+                if(entity.world.input.keyboard.LEFT || entity.world.input.keyboard.A) {
+                    theVel.x -= 1;
                 }
 
-                if(entity.world.input.keyboard.RIGHT) {
-                    theVel.x += speed;
+                if(entity.world.input.keyboard.RIGHT || entity.world.input.keyboard.D) {
+                    theVel.x += 1;
                 }
 
-                if(entity.world.input.keyboard.UP) {
-                    theVel.y -= speed;
+                if(entity.world.input.keyboard.UP || entity.world.input.keyboard.W) {
+                    theVel.y -= 1;
                 }
 
-                if(entity.world.input.keyboard.DOWN) {
-                    theVel.y += speed;
+                if(entity.world.input.keyboard.DOWN || entity.world.input.keyboard.S) {
+                    theVel.y += 1;
                 }
+
+                var magnitudeSquared = theVel.x*theVel.x + theVel.y*theVel.y;
+
+                if(magnitudeSquared > 1) {
+                    theVel.x *= 0.707;
+                    theVel.y *= 0.707;
+                }
+
+
+                var speed = 0.1 * tpf;
+                theVel.x *= speed;
+                theVel.y *= speed;
 
                 entity.components.physicsComponent.body.velocity = theVel;
+
+
+                if(typeof this.CAN_PLACE_BOMB === 'undefined')
+                    this.CAN_PLACE_BOMB = true;
+
+                // Place bomb if space bar is pressed
+                if(entity.world.input.keyboard.SPACE) {
+                    if(this.CAN_PLACE_BOMB) {
+                        console.log('Placed bomb... regenerating bomb.')
+                        this.CAN_PLACE_BOMB = false;
+
+                        // Create bomb entity
+                        var bomb = Creator.createEntity({
+                            type: 'bomb',
+                            position: {
+                                x: entity.position.x,
+                                y: entity.position.y
+                            },
+                            world: entity.world
+                        });
+                        bomb.addToWorld();
+
+
+                        var that = this;
+                        setTimeout(function() {
+                            console.log('Bomb regenerated.')
+                            that.CAN_PLACE_BOMB = true;
+                        }, 2000);
+                    }
+                }
+
+
 
                 entity.broadcastMessage('Pants!');
             }
@@ -90,42 +139,111 @@ define([
 
     };
 
-    Creator._createObstacleEntity = function(parameters) {
-        var obstacleEntity = new Entity(parameters.world);
+    Creator._createBombEntity = function(parameters) {
+        var entity = new Entity(parameters.world);
 
-        obstacleEntity.type = parameters.type;
+        entity.type = parameters.type;
 
-        obstacleEntity.size = {
-            x: parameters.size.x || 1,
-            y: parameters.size.y || 1
-        };
-
-        obstacleEntity.position = {
+        entity.position = {
             x: parameters.position.x || 0,
             y: parameters.position.y || 0
         };
 
-        obstacleEntity.draw = function(ctx) {
-            if(this.state == 'dead')
-                ctx.fillStyle = 'rgb(255, 127, 127)';
-            else
-                ctx.fillStyle = 'rgb(0, 0, 0)';
 
-            ctx.fillRect(this.position.x - this.size.x/2, this.position.y - this.size.y/2, this.size.x, this.size.y);
+        var physics = new PhysicsComponent();
+        entity.setComponent(physics);
+
+
+        var graphics = new GraphicsComponent();
+        var image = new Image();
+        image.src = 'image/bomb.png';
+        graphics.graphic = {
+            type: 'sprite',
+            spriteData: image
         };
+        entity.setComponent(graphics);
 
-        obstacleEntity.update = function() {
-            if(this.intersect.length && this.intersect.length > 0) {
-                for(var i = 0; i < this.intersect.length; i++) {
-                    if(this.intersect[i].type == 'player') {
-                        this.state = 'dead';
+
+        var script = new ScriptComponent();
+        script.scripts.push({
+            run: function(entity, tpf) {
+
+                if(typeof this.timeLeft === 'undefined') this.timeLeft = 1000;
+                this.timeLeft -= tpf;
+
+
+                if(this.timeLeft <= 0) {
+
+                    for(var i = 0; i < entity.world.entities.length; i++)
+                    {
+                        if(Util.intersectRect(entity, entity.world.entities[i])) {
+                            if(entity.world.entities[i] == entity) continue;
+                            entity.world.entities[i].broadcastMessage('damage');
+                        }
                     }
+
+                    entity.destroy();
                 }
             }
+        });
+        entity.setComponent(script);
 
+        return entity;
+    };
+
+    Creator._createEnemyEntity = function(parameters) {
+        var entity = new Entity(parameters.world);
+
+        entity.type = parameters.type;
+
+        entity.position = {
+            x: parameters.position.x || 0,
+            y: parameters.position.y || 0
         };
 
-        return obstacleEntity;
+
+
+        var physics = new PhysicsComponent();
+        entity.setComponent(physics);
+
+
+        var graphics = new GraphicsComponent();
+        var image = new Image();
+        image.src = 'image/enemy.png';
+        graphics.graphic = {
+            type: 'sprite',
+            spriteData: image
+        };
+        entity.setComponent(graphics);
+
+        entity.playerRef = entity.world.getEntityByType('player');
+        console.log(entity.playerRef);
+
+        var script = new ScriptComponent();
+        script.scripts.push({
+            run: function(entity, tpf, messages) {
+
+                for(var i = 0; i < messages.length; i++) {
+                    console.log(messages[i])
+                }
+
+                var theVel = {
+                    x: 0,
+                    y: 0
+                };
+
+                var angle = Util.angleToPoint(entity.position, entity.playerRef.position);
+
+
+                var speed = 0.07 * tpf;
+
+                entity.components.physicsComponent.body.velocity.x = Math.cos(angle) * speed;
+                entity.components.physicsComponent.body.velocity.y = Math.sin(angle) * speed;
+            }
+        });
+        entity.setComponent(script);
+
+        return entity;
     };
 
     return Creator;

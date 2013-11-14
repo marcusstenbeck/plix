@@ -23,5 +23,16 @@ define([
         this.components[component.type] = component;
     };
 
+    Entity.prototype.addToWorld = function () {
+        this.world.entities.push(this);
+    };
+
+    Entity.prototype.destroy = function() {
+        var index = this.world.entities.indexOf(this);
+
+        // Remove the entity from the world list
+        this.world.entities.splice(index, 1);
+    };
+
     return Entity;
 });

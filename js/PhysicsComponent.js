@@ -8,6 +8,11 @@ define([
         this.type = 'physicsComponent';
 
         this.body = {
+            size: {
+                x: 32,
+                y: 32
+            },
+
             position: {
                 x: 0,
                 y: 0
