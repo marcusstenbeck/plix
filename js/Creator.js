@@ -1,9 +1,9 @@
 define([
-    'Entity',
-    'PhysicsComponent',
-    'GraphicsComponent',
-    'ScriptComponent',
-    'Util'
+    'plix/Entity',
+    'plix/PhysicsComponent',
+    'plix/GraphicsComponent',
+    'plix/ScriptComponent',
+    'plix/Util'
 ], function(
     Entity,
     PhysicsComponent,
@@ -31,7 +31,7 @@ define([
     };
 
     Creator._createPlayerEntity = function(parameters) {
-        var playerEntity = new Entity(parameters.world);
+        var playerEntity = new Entity(parameters.scene);
 
         playerEntity.type = parameters.type;
 
@@ -68,19 +68,19 @@ define([
 
 
 
-                if(entity.world.input.keyboard.LEFT || entity.world.input.keyboard.A) {
+                if(entity.scene.input.keyboard.LEFT || entity.scene.input.keyboard.A) {
                     theVel.x -= 1;
                 }
 
-                if(entity.world.input.keyboard.RIGHT || entity.world.input.keyboard.D) {
+                if(entity.scene.input.keyboard.RIGHT || entity.scene.input.keyboard.D) {
                     theVel.x += 1;
                 }
 
-                if(entity.world.input.keyboard.UP || entity.world.input.keyboard.W) {
+                if(entity.scene.input.keyboard.UP || entity.scene.input.keyboard.W) {
                     theVel.y -= 1;
                 }
 
-                if(entity.world.input.keyboard.DOWN || entity.world.input.keyboard.S) {
+                if(entity.scene.input.keyboard.DOWN || entity.scene.input.keyboard.S) {
                     theVel.y += 1;
                 }
 
@@ -103,9 +103,9 @@ define([
                     this.CAN_PLACE_BOMB = true;
 
                 // Place bomb if space bar is pressed
-                if(entity.world.input.keyboard.SPACE) {
+                if(entity.scene.input.keyboard.SPACE) {
                     if(this.CAN_PLACE_BOMB) {
-                        console.log('Placed bomb... regenerating bomb.')
+                        console.log('Placed bomb... regenerating bomb.');
                         this.CAN_PLACE_BOMB = false;
 
                         // Create bomb entity
@@ -115,14 +115,14 @@ define([
                                 x: entity.position.x,
                                 y: entity.position.y
                             },
-                            world: entity.world
+                            scene: entity.scene
                         });
-                        bomb.addToWorld();
+                        bomb.addToScene();
 
 
                         var that = this;
                         setTimeout(function() {
-                            console.log('Bomb regenerated.')
+                            console.log('Bomb regenerated.');
                             that.CAN_PLACE_BOMB = true;
                         }, 2000);
                     }
@@ -140,7 +140,7 @@ define([
     };
 
     Creator._createBombEntity = function(parameters) {
-        var entity = new Entity(parameters.world);
+        var entity = new Entity(parameters.scene);
 
         entity.type = parameters.type;
 
@@ -174,11 +174,11 @@ define([
 
                 if(this.timeLeft <= 0) {
 
-                    for(var i = 0; i < entity.world.entities.length; i++)
+                    for(var i = 0; i < entity.scene.entities.length; i++)
                     {
-                        if(Util.intersectRect(entity, entity.world.entities[i])) {
-                            if(entity.world.entities[i] == entity) continue;
-                            entity.world.entities[i].broadcastMessage('damage');
+                        if(Util.intersectRect(entity, entity.scene.entities[i])) {
+                            if(entity.scene.entities[i] == entity) continue;
+                            entity.scene.entities[i].broadcastMessage('damage');
                         }
                     }
 
@@ -192,7 +192,7 @@ define([
     };
 
     Creator._createEnemyEntity = function(parameters) {
-        var entity = new Entity(parameters.world);
+        var entity = new Entity(parameters.scene);
 
         entity.type = parameters.type;
 
@@ -216,7 +216,7 @@ define([
         };
         entity.setComponent(graphics);
 
-        entity.playerRef = entity.world.getEntityByType('player');
+        entity.playerRef = entity.scene.getEntityByType('player');
         console.log(entity.playerRef);
 
         var script = new ScriptComponent();
@@ -224,7 +224,7 @@ define([
             run: function(entity, tpf, messages) {
 
                 for(var i = 0; i < messages.length; i++) {
-                    console.log(messages[i])
+                    console.log(messages[i]);
                 }
 
                 var theVel = {

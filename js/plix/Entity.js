@@ -4,9 +4,9 @@ define([
 
 ) {
 
-    function Entity(world, name) {
+    function Entity(scene, name) {
         this.name = name || 'Entity';
-        this.world = world;
+        this.scene = scene;
         this.components = {};
         this.intersect = [];
     }
@@ -23,15 +23,15 @@ define([
         this.components[component.type] = component;
     };
 
-    Entity.prototype.addToWorld = function () {
-        this.world.entities.push(this);
+    Entity.prototype.addToScene = function () {
+        this.scene.entities.push(this);
     };
 
     Entity.prototype.destroy = function() {
-        var index = this.world.entities.indexOf(this);
+        var index = this.scene.entities.indexOf(this);
 
-        // Remove the entity from the world list
-        this.world.entities.splice(index, 1);
+        // Remove the entity from the scene list
+        this.scene.entities.splice(index, 1);
     };
 
     return Entity;

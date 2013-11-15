@@ -1,5 +1,5 @@
 define([
-    'Component'
+    'plix/Component'
 ], function(
     Component
 ) {
