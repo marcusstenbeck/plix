@@ -4,10 +4,18 @@ define([
     PlixApp
 ){
     var game = new PlixApp();
+    game.DEBUG = true;
 
     var init = function() {
+
+        /**
+         * Create fireworks
+         */
         
-        
+
+        /**
+         * Run game
+         */
         game.start();
     };
 

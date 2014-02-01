@@ -12,6 +12,7 @@ define([
         // The registered states
         this.fsm = params.fsm || new FSM();
     }
+
     FsmComponent.prototype = Object.create(Component.prototype);
 
     FsmComponent.prototype.addState = function(stateName, behavior) {

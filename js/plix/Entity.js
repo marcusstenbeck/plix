@@ -4,11 +4,18 @@ define([
 
 ) {
 
-    function Entity(scene, name) {
-        this.name = name || 'Entity';
-        this.scene = scene;
+    function Entity() {
         this.components = {};
-        this.intersect = [];
+
+        this.size = { x:1, y:1 };
+
+        this.transform = {
+            position: { x:0, y:0 },
+            rotation: 0,
+            scale: { x:0, y:0 }
+        };
+
+        this.layer = null;
     }
 
     Entity.prototype.broadcastMessage = function(message) {
@@ -23,15 +30,16 @@ define([
         this.components[component.type] = component;
     };
 
-    Entity.prototype.addToScene = function () {
-        this.scene.entities.push(this);
+    Entity.prototype.attachToLayer = function (layer) {
+        layer.attachEntity();
+        this.layer = layer;
     };
 
     Entity.prototype.destroy = function() {
-        var index = this.scene.entities.indexOf(this);
+        var index = this.layer.entities.indexOf(this);
 
-        // Remove the entity from the scene list
-        this.scene.entities.splice(index, 1);
+        // Remove the entity from the layer list
+        this.layer.entities.splice(index, 1);
     };
 
     return Entity;
