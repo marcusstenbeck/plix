@@ -5,7 +5,7 @@ define([
 ) {
 
     function PhysicsComponent() {
-        this.type = 'physicsComponent';
+        this.type = 'physics';
 
         this.body = {
             size: {

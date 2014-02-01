@@ -7,7 +7,8 @@ define([
 ) {
 
     function FsmComponent(params) {
-        this.type = 'fsmComponent';
+        if(!params) params = {};
+        this.type = 'fsm';
 
         // The registered states
         this.fsm = params.fsm || new FSM();

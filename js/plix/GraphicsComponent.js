@@ -5,7 +5,7 @@ define([
 ) {
 
     function GraphicsComponent() {
-        this.type = 'graphicsComponent';
+        this.type = 'graphics';
 
         this.graphic = {
             type: 'shape',
