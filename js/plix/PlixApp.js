@@ -1,7 +1,9 @@
 define([
-	'plix/FsmComponent'
+	'plix/FsmComponent',
+	'plix/Scene'
 ], function(
-	FsmComponent
+	FsmComponent,
+	Scene
 ) {
 
 	function PlixApp() {
@@ -14,7 +16,7 @@ define([
     	this.tpf = 0;
     	this.timeElapsed = 0;
 
-    	this.layers = [];
+    	this.scenes = [];
 
     	this.DEBUG = false;
 
@@ -129,21 +131,29 @@ define([
         window.requestAnimationFrame( this.update.bind(this) );
 
         // Wipe the canvas clean
-        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         this.ctx.fillStyle = 'rgba(0,0,0,1)';
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
         
         if(this.state == 'running') {
 
+        	for(var i = 0; i < this.scenes.length; i++) {
+				for(var j = 0; j < this.scenes[i].entities.length; j++) {
+					ent = this.scenes[i].entities[j];
+
+					if(typeof ent.script === 'function') ent.script(ent);
+				}
+			}
+
 			if(this.DEBUG) {
 				var ent = null;
 
-				for(var i = 0; i < this.layers.length; i++) {
-					this.ctx.strokeStyle = this.layers[i].active ? 'magenta' : 'grey';
+				for(var i = 0; i < this.scenes.length; i++) {
+					this.ctx.strokeStyle = this.scenes[i].active ? 'magenta' : 'grey';
 
-					for(var j = 0; j < this.layers[i].entities.length; j++) {
-						ent = this.layers[i].entities[j];
+					for(var j = 0; j < this.scenes[i].entities.length; j++) {
+						ent = this.scenes[i].entities[j];
 						
+						this.ctx.beginPath();
 						this.ctx.moveTo(ent.transform.position.x - 2, ent.transform.position.y - 2);
 						this.ctx.lineTo(ent.transform.position.x + 2, ent.transform.position.y + 2);
 						this.ctx.moveTo(ent.transform.position.x + 2, ent.transform.position.y - 2);
@@ -151,24 +161,24 @@ define([
 
 						this.ctx.stroke();
 
-						this.ctx.strokeRect(ent.transform.position.x - ent.size.width/2,
-											ent.transform.position.y - ent.size.height/2,
-											ent.size.width,
-											ent.size.height);
+						this.ctx.strokeRect(ent.transform.position.x - ent.size.x/2,
+											ent.transform.position.y - ent.size.y/2,
+											ent.size.x,
+											ent.size.y);
 					}
 				}
 			}
         }
     };
 
-    PlixApp.prototype.createLayer = function() {
-    	var l = new Layer();
-    	this.attachLayer(l);
+    PlixApp.prototype.createScene = function() {
+    	var l = new Scene();
+    	this.attachScene(l);
     	return l;
     };
 
-    PlixApp.prototype.attachLayer = function(layer) {
-    	this.layers.push(layer);
+    PlixApp.prototype.attachScene = function(scene) {
+    	this.scenes.push(scene);
     };
 
     PlixApp.prototype.end = function() {
