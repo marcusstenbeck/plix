@@ -1,13 +1,13 @@
 define([
-
+    'plix/ComponentLib'
 ], function(
-
+    ComponentLib
 ) {
 
     function Entity(params) {
         if(!params) params = {};
 
-        this.components = {};
+        this._components = {};
 
         this.size = { x:1, y:1 };
 
@@ -22,14 +22,23 @@ define([
 
     Entity.prototype.broadcastMessage = function(message) {
         var _this = this;
-        Object.keys(this.components).forEach(function(key) {
-            _this.components[key].receiveMessage(message);
+        Object.keys(this._components).forEach(function(key) {
+            _this._components[key].receiveMessage(message);
         });
     };
 
-    Entity.prototype.setComponent = function(component) {
+    Entity.prototype.component = function(componentName, params) {
+        if(!params) params = {};
+
+        // Return the component if the entity already has it
+        if(this._components[componentName]) return this._components[componentName];
+
+        // Create and return the component if it doesn't exist
+        var component = new ComponentLib[componentName](params);
         component.setEntity(this);
-        this.components[component.type] = component;
+        this._components[componentName] = component;
+
+        return component;
     };
 
     Entity.prototype.attachToScene = function (scene) {

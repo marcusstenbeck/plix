@@ -25,12 +25,12 @@ define([
         e.transform.position.y = game.height - 50;
         e.size.x = 100;
         e.size.y = 10;
-        // TODO: Remove dep on FsmComponent... factory?
-        e.setComponent(new FsmComponent());
-        e.components.fsm.createState('default')
+        
+        e.component('fsm')
+            .createState('default')
             .onEnter(function(ent) {
                 var game = ent.scene.app;
-                console.log(game);
+
                 ent.script = function() {
                     if(game.input.keyboard.A) ent.transform.position.x -= 5;
                     if(game.input.keyboard.S) ent.transform.position.x += 5;
@@ -42,7 +42,7 @@ define([
                     if(rightEdge <= 0) ent.transform.position.x = halfWidth;
                 };
             });
-        e.components.fsm.enterState('default');
+        e.component('fsm').enterState('default');
 
         // Create paddle 2
         e = s.createEntity();
@@ -50,9 +50,9 @@ define([
         e.transform.position.y = 50;
         e.size.x = 100;
         e.size.y = 10;
-        // TODO: Remove dep on FsmComponent... factory?
-        e.setComponent(new FsmComponent());
-        e.components.fsm.createState('default')
+
+        e.component('fsm')
+            .createState('default')
             .onEnter(function(ent) {
                 var game = ent.scene.app;
 
@@ -67,7 +67,7 @@ define([
                     if(rightEdge <= 0) ent.transform.position.x = halfWidth;
                 };
             });
-        e.components.fsm.enterState('default');
+        e.component('fsm').enterState('default');
 
         // Create ball
         e = s.createEntity();
@@ -75,14 +75,15 @@ define([
         e.size.y = 10;
         e.transform.position.x = game.width/2 - e.size.x/2;
         e.transform.position.y = game.height/2 - e.size.y/2;
-        // TODO: Remove dep on FsmComponent... factory?
-        e.setComponent(new FsmComponent());
-        e.components.fsm.createState('default')
+
+        e.component('fsm')
+            .createState('default')
             .onEnter(function(ent) {
                 var game = ent.scene.app;
 
                 ent.script = function() {
                     // if(collide) ent.transform.position.x += 1;
+                    ent.transform.position.x += 1;
 
                     // "Ball" is symmetric
                     var halfSize = ent.size.x/2;
@@ -96,7 +97,7 @@ define([
                     if(right <= 0) ent.transform.position.x = halfSize;
                 };
             });
-        e.components.fsm.enterState('default');
+        e.component('fsm').enterState('default');
 
 
         /**
