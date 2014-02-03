@@ -4,7 +4,9 @@ define([
 
 ) {
 
-    function Entity() {
+    function Entity(params) {
+        if(!params) params = {};
+
         this.components = {};
 
         this.size = { x:1, y:1 };
@@ -15,7 +17,7 @@ define([
             scale: { x:0, y:0 }
         };
 
-        this.layer = null;
+        this.scene = params.scene || null;
     }
 
     Entity.prototype.broadcastMessage = function(message) {
@@ -30,16 +32,16 @@ define([
         this.components[component.type] = component;
     };
 
-    Entity.prototype.attachToLayer = function (layer) {
-        layer.attachEntity();
-        this.layer = layer;
+    Entity.prototype.attachToScene = function (scene) {
+        scene.attachEntity(this);
+        this.scene = scene;
     };
 
     Entity.prototype.destroy = function() {
-        var index = this.layer.entities.indexOf(this);
+        var index = this.scene.entities.indexOf(this);
 
-        // Remove the entity from the layer list
-        this.layer.entities.splice(index, 1);
+        // Remove the entity from the scene list
+        this.scene.entities.splice(index, 1);
     };
 
     return Entity;
