@@ -1,9 +1,11 @@
 define([
 	'plix/FsmComponent',
-	'plix/Scene'
+	'plix/Scene',
+	'plix/Util'
 ], function(
 	FsmComponent,
-	Scene
+	Scene,
+	Util
 ) {
 
 	function PlixApp() {
@@ -24,94 +26,42 @@ define([
 	}
 
 	PlixApp.prototype._init = function() {
-		// Track mouse position
 		var that = this;
+		that.input = {
+			mouse: { x:0, y:0 },
+			keyboard: {}
+		};
+
+		// Track mouse position
 		this.canvas.addEventListener('mousemove', function(e) {
 			that.input.mouse.x = e.offsetX;
 			that.input.mouse.y = e.offsetY;
 		});
 
+		var key;
 		// Listen to keydown
 		document.addEventListener('keydown', function(e) {
 
-			var key = false;
-
-			switch(e.keyCode) {
-				case 37:
-					key = 'LEFT';
-					break;
-				case 65:
-					key = 'A';
-					break;
-				case 38:
-					key = 'UP';
-					break;
-				case 39:
-					key = 'RIGHT';
-					break;
-				case 68:
-					key = 'D';
-					break;
-				case 40:
-					key = 'DOWN';
-					break;
-				case 32:
-					key = 'SPACE';
-					break;
-				case 87:
-					key = 'W';
-					break;
-				case 83:
-					key = 'S';
-					break;
-				default:
-					console.warn('Uncaught key code', e.keyCode);
-			}
+			key = Util.keyForCode(e.keyCode);
 
 			// Set the key to true if it was pressed
 			if(key) that.input.keyboard[key] = true;
+			else console.warn('Uncaught key code', e.keyCode);
 		});
 
 		// Listen to keyup
 		document.addEventListener('keyup', function(e) {
 
-			var key = false;
-
-			switch(e.keyCode) {
-				case 37:
-					key = 'LEFT';
-					break;
-				case 65:
-					key = 'A';
-					break;
-				case 38:
-					key = 'UP';
-					break;
-				case 39:
-					key = 'RIGHT';
-					break;
-				case 68:
-					key = 'D';
-					break;
-				case 40:
-					key = 'DOWN';
-					break;
-				case 32:
-					key = 'SPACE';
-					break;
-				case 87:
-					key = 'W';
-					break;
-				case 83:
-					key = 'S';
-					break;
-				default:
-					console.warn('Uncaught key code', e.keyCode);
-			}
+			key = Util.keyForCode(e.keyCode);
 
 			// Set key to false when it's not pressed anymore
 			if(key) that.input.keyboard[key] = false;
+			else console.warn('Uncaught key code', e.keyCode);
 		});
+
+		// Set app dimensions
+		this.width = this.canvas.width;
+		this.height = this.canvas.height;
 	};
 
 	PlixApp.prototype.start = function() {
@@ -172,13 +122,14 @@ define([
     };
 
     PlixApp.prototype.createScene = function() {
-    	var l = new Scene();
-    	this.attachScene(l);
-    	return l;
+    	var s = new Scene();
+    	this.attachScene(s);
+    	return s;
     };
 
     PlixApp.prototype.attachScene = function(scene) {
     	this.scenes.push(scene);
+    	scene.app = this;
     };
 
     PlixApp.prototype.end = function() {

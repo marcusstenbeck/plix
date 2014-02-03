@@ -30,5 +30,23 @@ define([], function() {
         return angle + (distToPoint.x < 0 ? Math.PI : 0);
     };
 
+    Util.keyForCode = function(keyCode) {
+        var keymap = {
+                37: 'LEFT',
+                65: 'A',
+                38: 'UP',
+                39: 'RIGHT',
+                68: 'D',
+                40: 'DOWN',
+                32: 'SPACE',
+                87: 'W',
+                83: 'S',
+                75: 'K',
+                76: 'L'
+            };
+
+            return keymap[keyCode];
+    }
+
     return Util;
 });
