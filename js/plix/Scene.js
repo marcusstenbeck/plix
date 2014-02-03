@@ -20,7 +20,7 @@ define([
 
 	Scene.prototype.createEntity = function(factory) {
 		var ent = new Entity();
-		this.attachEntity(ent);
+		ent.attachToScene(this);
 		return ent;
 	};
 
