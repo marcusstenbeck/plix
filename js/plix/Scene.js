@@ -7,6 +7,8 @@ define([
 	function Scene(options) {
 		this.entities = [];
 		this.active = true;
+
+		this.app = null;
 	}
 
 	Scene.prototype.getEntityByType = function(type) {
