@@ -1,6 +1,6 @@
 define([
     'plix/Component',
-    '../../node_modules/fsm/amd/FSM'
+    '../vendor/fsm/FSM'
 ], function(
     Component,
     FSM
