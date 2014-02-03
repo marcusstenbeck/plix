@@ -42,6 +42,7 @@ define([
                     if(rightEdge <= 0) ent.transform.position.x = halfWidth;
                 };
             });
+        // TODO: It's dumb to have to require this if we only add one state...
         e.component('fsm').enterState('default');
 
         // Create paddle 2
@@ -67,6 +68,7 @@ define([
                     if(rightEdge <= 0) ent.transform.position.x = halfWidth;
                 };
             });
+        // TODO: It's dumb to have to require this if we only add one state...
         e.component('fsm').enterState('default');
 
         // Create ball
@@ -97,6 +99,7 @@ define([
                     if(right <= 0) ent.transform.position.x = halfSize;
                 };
             });
+        // TODO: It's dumb to have to require this if we only add one state...
         e.component('fsm').enterState('default');
 
 
