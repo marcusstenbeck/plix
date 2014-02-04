@@ -15,9 +15,7 @@ define([
          */
         var s = game.createScene('main');
         
-        // TODO:
-        // I want to be able to create an
-        // entity with a parameter object
+        // TODO: I want to be able to create an entity with a parameter object
 
         // Create paddle 1
         var e = s.createEntity();
