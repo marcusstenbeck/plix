@@ -83,22 +83,13 @@ define([
 
                 ent.script = function() {
                     // if(collide) ent.transform.position.x += 1;
-                    ent.transform.position.x += 1;
-
-                    // "Ball" is symmetric
-                    var halfSize = ent.size.x/2;
-
-                    var left = ent.transform.position.x + halfSize;
-                    var right = ent.transform.position.x - halfSize;
-                    var top = ent.transform.position.y + halfSize;
-                    var bottom = ent.transform.position.y - halfSize;
-
-                    if(left >= game.width) ent.transform.position.x = game.width - halfSize;
-                    if(right <= 0) ent.transform.position.x = halfSize;
+                    ent.component('physics').body.position.x += 1;
                 };
             });
         // TODO: It's dumb to have to require this if we only add one state...
         e.component('fsm').enterState('default');
+
+        e.component('physics');
 
 
         /**

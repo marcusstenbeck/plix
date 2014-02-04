@@ -91,6 +91,11 @@ define([
 					ent = this.scenes[i].entities[j];
 
 					if(typeof ent.script === 'function') ent.script(ent);
+
+					if(ent._components.physics) {
+						ent.transform.position.x = ent._components.physics.body.position.x;
+						ent.transform.position.y = ent._components.physics.body.position.y;
+					}
 				}
 			}
 
