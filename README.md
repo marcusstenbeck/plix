@@ -1,4 +1,4 @@
 Plix
 ====
 
-A survival game. Enemies come in waves, and your objective is to survive.
+Game engine. In development. Don't expect anything... but feel free to cheer me on!
