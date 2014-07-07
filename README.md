@@ -1,4 +1,4 @@
 Plix
 ====
 
-Game engine. In development. Don't expect anything... but feel free to cheer me on!
+My personal little HTML5 game engine. See http://marcusstenbeck.com/plix for more info.
