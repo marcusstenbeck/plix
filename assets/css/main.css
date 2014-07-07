@@ -52,11 +52,11 @@ a { color: #8484e5; }
 
 @font-face {
 	font-family: 'socicon';
-	src: url('/assets/fonts/socicon/socicon-webfont.eot');
-	src: url('/assets/fonts/socicon/socicon-webfont.eot?#iefix') format('embedded-opentype'),
-		url('/assets/fonts/socicon/socicon-webfont.woff') format('woff'),
-		url('/assets/fonts/socicon/socicon-webfont.ttf') format('truetype'),
-		url('/assets/fonts/socicon/socicon-webfont.svg#sociconregular') format('svg');
+	src: url('assets/fonts/socicon/socicon-webfont.eot');
+	src: url('assets/fonts/socicon/socicon-webfont.eot?#iefix') format('embedded-opentype'),
+		url('assets/fonts/socicon/socicon-webfont.woff') format('woff'),
+		url('assets/fonts/socicon/socicon-webfont.ttf') format('truetype'),
+		url('assets/fonts/socicon/socicon-webfont.svg#sociconregular') format('svg');
 	font-weight: normal;
 	font-style: normal;
 }
