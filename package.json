@@ -1,8 +1,0 @@
-{
-  "name": "Plix",
-  "repository": "git@github.com:marcusstenbeck/plix.git",
-  "version": "0.1.0",
-  "dependencies": {
-    "fsm": "git+ssh://git@github.com:marcusstenbeck/fsm.git"
-  }
-}

@@ -1,8 +1,1 @@
-# System
-.DS_Store/
-
-# Node
-node_modules
-
-# Build folder
-build
+_site

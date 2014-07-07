@@ -1,0 +1,66 @@
+
+body {
+	font-size: 20px;
+	font-family: 'Palatino Linotype', serif;
+	width: 35em;
+	margin: 0 auto;
+	word-wrap: break-word;
+	color: #111;
+}
+
+h1,h2,h3,h4,h5,h6 { font-family: 'Helvetica', 'Verdana', sans-serif; }
+
+a { color: #8484e5; }
+
+
+.footer {
+	border-top: solid 1px #ccc;
+	color: #ccc;
+}
+
+.pull-left { float: left; }
+.pull-right { float: right; }
+
+
+
+.post-list { list-style: none; padding: 0; }
+
+
+.todo-list { list-style: none; }
+.todo-item { margin-bottom: .4em; }
+.todo-item:before {
+	width: 15px;
+	text-align: center;
+	height: 15px;
+	display: inline-block;
+	border: solid 2px #ccc;
+	font-family: Verdana;
+	line-height: 10px;
+	margin: 0 .5em 0 -17px;
+	position: relative;
+	top: 2px;
+}
+.todo-item:before { content: ''; }
+.todo-item.is-done:before { content: 'x'; top: -1px; }
+.todo-item.is-done { color: #999; text-decoration: line-through; }
+
+/*
+ *  Social Icons
+ *  http://socicon.com/
+ *
+ */
+
+@font-face {
+	font-family: 'socicon';
+	src: url('/assets/fonts/socicon/socicon-webfont.eot');
+	src: url('/assets/fonts/socicon/socicon-webfont.eot?#iefix') format('embedded-opentype'),
+		url('/assets/fonts/socicon/socicon-webfont.woff') format('woff'),
+		url('/assets/fonts/socicon/socicon-webfont.ttf') format('truetype'),
+		url('/assets/fonts/socicon/socicon-webfont.svg#sociconregular') format('svg');
+	font-weight: normal;
+	font-style: normal;
+}
+.icon-social { font-family: 'socicon' !important; font-style: normal; }
+.icon-link { text-decoration: none; }
+.icon-twitter:after { content: 'a'; }
+.icon-github:after { content: 'Q'; }
