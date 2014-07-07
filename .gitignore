@@ -6,3 +6,6 @@ node_modules
 
 # Build folder
 build
+
+# gh-pages build folder
+_site
