@@ -1,9 +1,7 @@
 define([
-	'plix/PlixApp',
-	'plix/FsmComponent'
+	'plix/PlixApp'
 ], function(
-	PlixApp,
-	FsmComponent
+	PlixApp
 ) {
 	var game = new PlixApp();
 	game.DEBUG = true;
