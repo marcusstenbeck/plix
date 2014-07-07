@@ -18,6 +18,7 @@ define([
         };
 
         this.scene = params.scene || null;
+        this.data = {};
     }
 
     Entity.prototype.broadcastMessage = function(message) {
