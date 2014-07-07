@@ -110,17 +110,17 @@ define([
 
 						
 						this.ctx.beginPath();
-						this.ctx.moveTo(ent.transform.position.x - 2, ent.transform.position.y - 2);
-						this.ctx.lineTo(ent.transform.position.x + 2, ent.transform.position.y + 2);
-						this.ctx.moveTo(ent.transform.position.x + 2, ent.transform.position.y - 2);
-						this.ctx.lineTo(ent.transform.position.x - 2, ent.transform.position.y + 2);
+						this.ctx.moveTo(ent.transform.position.x - 2.5, ent.transform.position.y - 2.5);
+						this.ctx.lineTo(ent.transform.position.x + 2.5, ent.transform.position.y + 2.5);
+						this.ctx.moveTo(ent.transform.position.x + 2.5, ent.transform.position.y - 2.5);
+						this.ctx.lineTo(ent.transform.position.x - 2.5, ent.transform.position.y + 2.5);
 
 						this.ctx.stroke();
 
-						this.ctx.strokeRect(ent.transform.position.x - ent.size.x/2,
-											ent.transform.position.y - ent.size.y/2,
-											ent.size.x,
-											ent.size.y);
+						this.ctx.strokeRect(ent.transform.position.x - ent.size.x/2 + 0.5,
+											ent.transform.position.y - ent.size.y/2 + 0.5,
+											ent.size.x - 1,
+											ent.size.y - 1);
 					}
 				}
 			}
