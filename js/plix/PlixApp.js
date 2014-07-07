@@ -102,6 +102,12 @@ define([
 
 					for(var j = 0; j < this.scenes[i].entities.length; j++) {
 						ent = this.scenes[i].entities[j];
+
+						// Get color from entity
+						var color = ent.component('graphics').graphic.color;
+
+						this.ctx.strokeStyle = 'rgba(' + (255 * color[0]) + ',' + (255 * color[1]) + ',' + (255 * color[2]) + ',' + (255 * color[3]) + ')';
+
 						
 						this.ctx.beginPath();
 						this.ctx.moveTo(ent.transform.position.x - 2, ent.transform.position.y - 2);
