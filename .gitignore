@@ -1,8 +1,11 @@
 # System
-.DS_Store/
+.DS_Store
 
 # Node
 node_modules
+
+# Bower
+lib/vendor
 
 # Build folder
 build
