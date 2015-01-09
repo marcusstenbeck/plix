@@ -31,6 +31,8 @@ define([
     Entity.prototype.component = function(componentName, params) {
         if(!params) params = {};
 
+        params.entity = this;
+
         // Return the component if the entity already has it
         if(this._components[componentName]) return this._components[componentName];
 

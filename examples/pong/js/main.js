@@ -12,10 +12,12 @@ requirejs.config({
 });
 define([
     'plix/PlixApp',
-    'plix/FsmComponent'
+    'lib/vendor/physix/src/Body',
+    'lib/vendor/physix/src/Vec2'
 ], function(
     PlixApp,
-    FsmComponent
+    Body,
+    Vec2
 ){
     var game = new PlixApp();
     game.DEBUG = true;
@@ -38,24 +40,27 @@ define([
         e.size.x = 100;
         e.size.y = 10;
         
+        e.component('physics').body.type = Body.KINEMATIC;
+
         e.component('fsm')
             .createState('default')
             .onEnter(function(ent) {
                 var game = ent.scene.app;
 
                 ent.script = function() {
-                    if(game.input.keyboard.A) ent.transform.position.x -= 5;
-                    if(game.input.keyboard.S) ent.transform.position.x += 5;
+                    if(game.input.keyboard.A) ent._components.physics.body.pos.x -= 5;
+                    if(game.input.keyboard.S) ent._components.physics.body.pos.x += 5;
 
                     var halfWidth = ent.size.x/2;
-                    var leftEdge = ent.transform.position.x + halfWidth;
-                    var rightEdge = ent.transform.position.x - halfWidth;
-                    if(leftEdge >= game.width) ent.transform.position.x = game.width - halfWidth;
-                    if(rightEdge <= 0) ent.transform.position.x = halfWidth;
+                    var leftEdge = ent._components.physics.body.pos.x + halfWidth;
+                    var rightEdge = ent._components.physics.body.pos.x - halfWidth;
+                    if(leftEdge >= game.width) ent._components.physics.body.pos.x = game.width - halfWidth;
+                    if(rightEdge <= 0) ent._components.physics.body.pos.x = halfWidth;
                 };
             });
         // TODO: It's dumb to have to require this if we only add one state...
         e.component('fsm').enterState('default');
+
 
         // Create paddle 2
         e = s.createEntity();
@@ -64,20 +69,22 @@ define([
         e.size.x = 100;
         e.size.y = 10;
 
+        e.component('physics').body.type = Body.KINEMATIC;
+
         e.component('fsm')
             .createState('default')
             .onEnter(function(ent) {
                 var game = ent.scene.app;
 
                 ent.script = function() {
-                    if(game.input.keyboard.K) ent.transform.position.x -= 5;
-                    if(game.input.keyboard.L) ent.transform.position.x += 5;
+                    if(game.input.keyboard.K) ent._components.physics.body.pos.x -= 5;
+                    if(game.input.keyboard.L) ent._components.physics.body.pos.x += 5;
 
                     var halfWidth = ent.size.x/2;
-                    var leftEdge = ent.transform.position.x + halfWidth;
-                    var rightEdge = ent.transform.position.x - halfWidth;
-                    if(leftEdge >= game.width) ent.transform.position.x = game.width - halfWidth;
-                    if(rightEdge <= 0) ent.transform.position.x = halfWidth;
+                    var leftEdge = ent._components.physics.body.pos.x + halfWidth;
+                    var rightEdge = ent._components.physics.body.pos.x - halfWidth;
+                    if(leftEdge >= game.width) ent._components.physics.body.pos.x = game.width - halfWidth;
+                    if(rightEdge <= 0) ent._components.physics.body.pos.x = halfWidth;
                 };
             });
         // TODO: It's dumb to have to require this if we only add one state...
@@ -96,24 +103,14 @@ define([
                 var game = ent.scene.app;
 
                 ent.script = function() {
-                    // if(collide) ent.transform.position.x += 1;
-                    ent.transform.position.x += 1;
-
-                    // "Ball" is symmetric
-                    var halfSize = ent.size.x/2;
-
-                    var left = ent.transform.position.x + halfSize;
-                    var right = ent.transform.position.x - halfSize;
-                    var top = ent.transform.position.y + halfSize;
-                    var bottom = ent.transform.position.y - halfSize;
-
-                    if(left >= game.width) ent.transform.position.x = game.width - halfSize;
-                    if(right <= 0) ent.transform.position.x = halfSize;
+                    // stuff ...
                 };
             });
         // TODO: It's dumb to have to require this if we only add one state...
         e.component('fsm').enterState('default');
 
+
+        e.component('physics').body.applyForce(new Vec2(0.001, 0.01));
 
         /**
          * Run game

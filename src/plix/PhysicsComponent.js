@@ -1,41 +1,39 @@
 define([
-    'plix/Component'
+    'plix/Component',
+    'lib/vendor/physix/src/Vec2',
+    'lib/vendor/physix/src/Body',
+    'lib/vendor/physix/src/World'
 ], function(
-    Component
+    Component,
+    Vec2,
+    Body,
+    World
 ) {
 
-    function PhysicsComponent() {
+    function PhysicsComponent(params) {
+        Component.call(this, params);
+        if(!params) params = {};
+
         this.type = 'physics';
 
-        this.body = {
-            size: {
-                x: 32,
-                y: 32
-            },
+        this.body = new Body();
+        this.body.pos = new Vec2(this.entity.transform.position.x, this.entity.transform.position.y);
+        this.body.shape.width = this.entity.size.x;
+        this.body.shape.height = this.entity.size.y;
 
-            position: {
-                x: 0,
-                y: 0
-            },
+        if(!this.entity.scene._physicsWorld) {
+            this.entity.scene._physicsWorld = new World();
+        }
 
-            velocity: {
-                x: 0,
-                y: 0
-            },
-
-            acceleration: {
-                x: 0,
-                y: 0
-            }
-        };
+        this.entity.scene._physicsWorld.bodies.push(this.body)
     }
     PhysicsComponent.prototype = Object.create(Component.prototype);
+    PhysicsComponent.prototype.constructor = Component;
 
     PhysicsComponent.prototype.receiveMessage = function(message) {};
 
     PhysicsComponent.prototype.setEntity = function(entity) {
         this.entity = entity;
-        this.body.position = entity.position;
     };
 
     return PhysicsComponent;

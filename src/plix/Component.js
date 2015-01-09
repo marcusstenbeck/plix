@@ -4,8 +4,10 @@ define([
 
 ) {
 
-    function Component() {
-        this.entity = null;
+    function Component(params) {
+    	if(!params) params = {};
+
+        this.entity = params.entity ? params.entity : undefined;
     }
 
     Component.prototype.setEntity = function(entity) {

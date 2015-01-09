@@ -86,13 +86,17 @@ define([
         
         if(this.state == 'running') {
 
-        	for(var i = 0; i < this.scenes.length; i++) {
-				for(var j = 0; j < this.scenes[i].entities.length; j++) {
-					ent = this.scenes[i].entities[j];
-
-					if(typeof ent.script === 'function') ent.script(ent);
-				}
-			}
+        	this.scenes.forEach(function(scene) {
+				if(scene._physicsWorld) scene._physicsWorld.update(scene.app.tpf);
+				
+				scene.entities.forEach(function(entity) {
+					if(typeof entity.script === 'function') entity.script(ent);
+					if(entity._components['physics']) {
+						entity.transform.position.x = entity._components['physics'].body.pos.x;
+						entity.transform.position.y = entity._components['physics'].body.pos.y;
+					}
+				});
+			});
 
 			if(this.DEBUG) {
 				var ent = null;
