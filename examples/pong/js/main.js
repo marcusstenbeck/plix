@@ -25,16 +25,46 @@ define([
     var init = function() {
 
         /**
-         * Create fireworks
+         * Create main scene
          */
         var s = game.createScene('main');
         
-        // TODO:
-        // I want to be able to create an
-        // entity with a parameter object
+        var e;  // temp storage for an entity
+
+        // Top wall
+        e = s.createEntity();
+        e.transform.position.x = game.width/2;
+        e.transform.position.y = -10;
+        e.size.x = game.width;
+        e.size.y = 20;
+        e.component('physics').body.type = Body.KINEMATIC;
+
+        // Bottom wall
+        e = s.createEntity();
+        e.transform.position.x = game.width/2;
+        e.transform.position.y = game.height + 10;
+        e.size.x = game.width;
+        e.size.y = 20;
+        e.component('physics').body.type = Body.KINEMATIC;
+
+        // Left wall
+        e = s.createEntity();
+        e.transform.position.x = - 9;
+        e.transform.position.y = game.height/2;
+        e.size.x = 20;
+        e.size.y = game.height;
+        e.component('physics').body.type = Body.KINEMATIC;
+
+        // Right wall
+        e = s.createEntity();
+        e.transform.position.x = game.width + 10;
+        e.transform.position.y = game.height/2;
+        e.size.x = 20;
+        e.size.y = game.height;
+        e.component('physics').body.type = Body.KINEMATIC;
 
         // Create paddle 1
-        var e = s.createEntity();
+        e = s.createEntity();
         e.transform.position.x = 100;
         e.transform.position.y = game.height - 50;
         e.size.x = 100;
