@@ -78,14 +78,10 @@ define([
                 var game = ent.scene.app;
 
                 ent.script = function() {
-                    if(game.input.keyboard.A) ent._components.physics.body.pos.x -= 5;
-                    if(game.input.keyboard.S) ent._components.physics.body.pos.x += 5;
-
-                    var halfWidth = ent.size.x/2;
-                    var leftEdge = ent._components.physics.body.pos.x + halfWidth;
-                    var rightEdge = ent._components.physics.body.pos.x - halfWidth;
-                    if(leftEdge >= game.width) ent._components.physics.body.pos.x = game.width - halfWidth;
-                    if(rightEdge <= 0) ent._components.physics.body.pos.x = halfWidth;
+                    var xVel = 0;
+                    xVel += game.input.keyboard.A ? -0.5 : 0;
+                    xVel += game.input.keyboard.S ? 0.5 : 0;
+                    ent._components.physics.body.vel.x = xVel;
                 };
             });
         // TODO: It's dumb to have to require this if we only add one state...
@@ -107,14 +103,10 @@ define([
                 var game = ent.scene.app;
 
                 ent.script = function() {
-                    if(game.input.keyboard.K) ent._components.physics.body.pos.x -= 5;
-                    if(game.input.keyboard.L) ent._components.physics.body.pos.x += 5;
-
-                    var halfWidth = ent.size.x/2;
-                    var leftEdge = ent._components.physics.body.pos.x + halfWidth;
-                    var rightEdge = ent._components.physics.body.pos.x - halfWidth;
-                    if(leftEdge >= game.width) ent._components.physics.body.pos.x = game.width - halfWidth;
-                    if(rightEdge <= 0) ent._components.physics.body.pos.x = halfWidth;
+                    var xVel = 0;
+                    xVel += game.input.keyboard.K ? -0.5 : 0;
+                    xVel += game.input.keyboard.L ? 0.5 : 0;
+                    ent._components.physics.body.vel.x = xVel;
                 };
             });
         // TODO: It's dumb to have to require this if we only add one state...
