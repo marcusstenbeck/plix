@@ -1,4 +1,6 @@
 define([], function() {
+    'use strict';
+
     function Util() {}
 
     Util.intersectRect = function(r1, r2) {
@@ -46,7 +48,7 @@ define([], function() {
             };
 
             return keymap[keyCode];
-    }
+    };
 
     return Util;
 });

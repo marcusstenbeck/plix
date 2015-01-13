@@ -3,8 +3,9 @@ define([
 ], function(
 	Entity
 ) {
+	'use strict';
 
-	function Scene(options) {
+	function Scene() {
 		this.entities = [];
 		this.active = true;
 
@@ -18,7 +19,7 @@ define([
 		return null;
 	};
 
-	Scene.prototype.createEntity = function(factory) {
+	Scene.prototype.createEntity = function() {
 		var ent = new Entity();
 		ent.attachToScene(this);
 		return ent;

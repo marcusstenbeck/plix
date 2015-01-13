@@ -3,6 +3,7 @@ define([
 ], function(
     Component
 ) {
+    'use strict';
 
     function GraphicsComponent() {
         this.type = 'graphics';
@@ -19,7 +20,7 @@ define([
     }
     GraphicsComponent.prototype = Object.create(Component.prototype);
 
-    GraphicsComponent.prototype.receiveMessage = function(message) {};
+    GraphicsComponent.prototype.receiveMessage = function() {};
 
     return GraphicsComponent;
 });

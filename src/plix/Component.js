@@ -3,6 +3,7 @@ define([
 ], function(
 
 ) {
+    'use strict';
 
     function Component(params) {
     	if(!params) params = {};

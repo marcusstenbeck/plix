@@ -17,6 +17,7 @@ define([
     Component,
     FSM
 ) {
+    'use strict';
 
     function FsmComponent(params) {
         if(!params) params = {};

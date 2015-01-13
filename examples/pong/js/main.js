@@ -19,6 +19,8 @@ define([
     Body,
     Vec2
 ){
+    'use strict';
+
     var game = new PlixApp();
     game.DEBUG = true;
 
@@ -122,7 +124,6 @@ define([
         e.component('fsm')
             .createState('default')
             .onEnter(function(ent) {
-                var game = ent.scene.app;
 
                 ent.script = function() {
                     // stuff ...

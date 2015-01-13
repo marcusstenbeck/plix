@@ -7,6 +7,7 @@ define([
 	GraphicsComponent,
 	PhysicsComponent
 ) {
+	'use strict';
 	
 	return {
 		fsm: FsmComponent,

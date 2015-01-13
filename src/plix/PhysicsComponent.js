@@ -9,6 +9,7 @@ define([
     Body,
     World
 ) {
+    'use strict';
 
     function PhysicsComponent(params) {
         Component.call(this, params);
@@ -25,12 +26,12 @@ define([
             this.entity.scene._physicsWorld = new World();
         }
 
-        this.entity.scene._physicsWorld.bodies.push(this.body)
+        this.entity.scene._physicsWorld.bodies.push(this.body);
     }
     PhysicsComponent.prototype = Object.create(Component.prototype);
     PhysicsComponent.prototype.constructor = Component;
 
-    PhysicsComponent.prototype.receiveMessage = function(message) {};
+    PhysicsComponent.prototype.receiveMessage = function() {};
 
     PhysicsComponent.prototype.setEntity = function(entity) {
         this.entity = entity;

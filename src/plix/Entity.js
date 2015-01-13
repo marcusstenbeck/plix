@@ -3,6 +3,7 @@ define([
 ], function(
     ComponentLib
 ) {
+    'use strict';
 
     function Entity(params) {
         if(!params) params = {};

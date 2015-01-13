@@ -7,6 +7,7 @@ define([
 	Scene,
 	Util
 ) {
+	'use strict';
 
 	function PlixApp() {
 		this.state = 'ready';
@@ -91,9 +92,9 @@ define([
 				
 				scene.entities.forEach(function(entity) {
 					if(typeof entity.script === 'function') entity.script(ent);
-					if(entity._components['physics']) {
-						entity.transform.position.x = entity._components['physics'].body.pos.x;
-						entity.transform.position.y = entity._components['physics'].body.pos.y;
+					if(entity._components.physics) {
+						entity.transform.position.x = entity._components.physics.body.pos.x;
+						entity.transform.position.y = entity._components.physics.body.pos.y;
 					}
 				});
 			});

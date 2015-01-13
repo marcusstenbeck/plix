@@ -22,6 +22,7 @@ define([
     ScriptComponent,
     Util
 ) {
+    'use strict';
 
     function Creator() {}
 
@@ -237,11 +238,6 @@ define([
                 for(var i = 0; i < messages.length; i++) {
                     console.log(messages[i]);
                 }
-
-                var theVel = {
-                    x: 0,
-                    y: 0
-                };
 
                 var angle = Util.angleToPoint(entity.position, entity.playerRef.position);
 
