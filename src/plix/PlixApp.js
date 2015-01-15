@@ -10,9 +10,6 @@ define([
 	'use strict';
 
 	function PlixApp() {
-		this.state = 'ready';
-		this.tiles = 0;
-
 		this.canvas = document.getElementById('game');
 		this.ctx = this.canvas.getContext('2d');
 
@@ -63,12 +60,7 @@ define([
 		this.height = this.canvas.height;
 	};
 
-	PlixApp.prototype.start = function() {
-		// If game is already running, then return
-		if(this.state == 'running') return;
-
-		this.state = 'running';
-		
+	PlixApp.prototype.start = function() {		
 		window.requestAnimationFrame( this.update.bind(this) );
 	};
 
