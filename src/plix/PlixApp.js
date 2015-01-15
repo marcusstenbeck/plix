@@ -21,8 +21,6 @@ define([
 
     	this.scenes = [];
 
-    	this.DEBUG = false;
-
 		this._init();
 	}
 

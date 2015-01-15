@@ -22,7 +22,6 @@ define([
     'use strict';
 
     var game = new PlixApp();
-    game.DEBUG = true;
 
     var init = function() {
 
