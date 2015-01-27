@@ -57,5 +57,26 @@ define([
         this.scene.entities.splice(index, 1);
     };
 
+    Entity.prototype.render = function(ctx) {
+        // Get color from entity
+        var color = this.component('graphics').graphic.color;
+
+        ctx.strokeStyle = 'rgba(' + (255 * color[0]) + ',' + (255 * color[1]) + ',' + (255 * color[2]) + ',' + (255 * color[3]) + ')';
+
+        
+        ctx.beginPath();
+        ctx.moveTo(this.transform.position.x - 2.5, this.transform.position.y - 2.5);
+        ctx.lineTo(this.transform.position.x + 2.5, this.transform.position.y + 2.5);
+        ctx.moveTo(this.transform.position.x + 2.5, this.transform.position.y - 2.5);
+        ctx.lineTo(this.transform.position.x - 2.5, this.transform.position.y + 2.5);
+
+        ctx.stroke();
+
+        ctx.strokeRect(this.transform.position.x - this.size.x/2 + 0.5,
+                            this.transform.position.y - this.size.y/2 + 0.5,
+                            this.size.x - 1,
+                            this.size.y - 1);
+    };
+
     return Entity;
 });

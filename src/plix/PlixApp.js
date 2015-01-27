@@ -76,7 +76,7 @@ define([
         // For each scene in the stack
         this.scenes.forEach(function(scene) {
         	scene.update(scene.app.tpf);
-        	scene.draw(scene.app.ctx);
+        	scene.render(scene.app.ctx);
         });
 
         // Keep the loop going
