@@ -1,14 +1,14 @@
 define([
-    'plix/ComponentLib'
+    'plix/GraphicsComponent'
 ], function(
-    ComponentLib
+    GraphicsComponent
 ) {
     'use strict';
 
     function Entity(params) {
         if(!params) params = {};
 
-        this._components = {};
+        this.components = {};
 
         this.size = { x:1, y:1 };
 
@@ -24,25 +24,22 @@ define([
 
     Entity.prototype.broadcastMessage = function(message) {
         var _this = this;
-        Object.keys(this._components).forEach(function(key) {
-            _this._components[key].receiveMessage(message);
+        Object.keys(this.components).forEach(function(key) {
+            _this.components[key].receiveMessage(message);
         });
     };
 
-    Entity.prototype.component = function(componentName, params) {
-        if(!params) params = {};
+    Entity.prototype.addComponent = function(component) {
+        if(!component.type) {
+            console.warn('No component type!!!');
+            return;
+        }
 
-        params.entity = this;
-
-        // Return the component if the entity already has it
-        if(this._components[componentName]) return this._components[componentName];
-
-        // Create and return the component if it doesn't exist
-        var component = new ComponentLib[componentName](params);
+        // Set the component's entity to this
         component.setEntity(this);
-        this._components[componentName] = component;
 
-        return component;
+        // Add component to components
+        this.components[component.type] = component;
     };
 
     Entity.prototype.attachToScene = function (scene) {
@@ -59,7 +56,11 @@ define([
 
     Entity.prototype.render = function(ctx) {
         // Get color from entity
-        var color = this.component('graphics').graphic.color;
+
+        if(!this.components.graphics) {
+            this.addComponent(new GraphicsComponent({ entity: this }));
+        }
+        var color = this.components.graphics.graphic.color;
 
         ctx.strokeStyle = 'rgba(' + (255 * color[0]) + ',' + (255 * color[1]) + ',' + (255 * color[2]) + ',' + (255 * color[3]) + ')';
 

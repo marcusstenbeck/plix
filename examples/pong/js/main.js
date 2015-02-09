@@ -1,24 +1,25 @@
 requirejs.config({
-    //By default load any module IDs from ../../src
-    baseUrl: '../../src',
+    // Default loading base url
+    baseUrl: '',
     //except, if the module ID starts with "app",
     //load it from the ./examples directory. paths
     //config is relative to the baseUrl, and
     //never includes a ".js" extension since
     //the paths config could be for a directory.
     paths: {
-        lib: '../../lib'
+        lib: '../../lib',
+        plix: '../../../src/plix'
     }
 });
 define([
     'plix/PlixApp',
-    'lib/vendor/physix/src/Body',
+    'js/PongFactory',
     'lib/vendor/physix/src/Vec2'
 ], function(
     PlixApp,
-    Body,
+    PongFactory,
     Vec2
-){
+) {
     'use strict';
 
     var game = new PlixApp();
@@ -28,111 +29,65 @@ define([
         /**
          * Create main scene
          */
-        var s = game.createScene('main');
-        
-        var e;  // temp storage for an entity
+        var scene = game.createScene('main');
 
         // Top wall
-        e = s.createEntity();
-        e.transform.position.x = game.width/2;
-        e.transform.position.y = -10;
-        e.size.x = game.width;
-        e.size.y = 20;
-        e.component('physics').body.type = Body.KINEMATIC;
+        PongFactory.createWall(scene, {
+            x: game.width/2,
+            y: -10,
+            width: game.width,
+            height: 20
+        });
 
         // Bottom wall
-        e = s.createEntity();
-        e.transform.position.x = game.width/2;
-        e.transform.position.y = game.height + 10;
-        e.size.x = game.width;
-        e.size.y = 20;
-        e.component('physics').body.type = Body.KINEMATIC;
+        PongFactory.createWall(scene, {
+            x: game.width/2,
+            y: game.height + 10,
+            width: game.width,
+            height: 20
+        });
 
         // Left wall
-        e = s.createEntity();
-        e.transform.position.x = - 9;
-        e.transform.position.y = game.height/2;
-        e.size.x = 20;
-        e.size.y = game.height;
-        e.component('physics').body.type = Body.KINEMATIC;
+        PongFactory.createWall(scene, {
+            x: - 9,
+            y: game.height/2,
+            width: 20,
+            height: game.height
+        });
 
         // Right wall
-        e = s.createEntity();
-        e.transform.position.x = game.width + 10;
-        e.transform.position.y = game.height/2;
-        e.size.x = 20;
-        e.size.y = game.height;
-        e.component('physics').body.type = Body.KINEMATIC;
+        PongFactory.createWall(scene, {
+            x: game.width + 10,
+            y: game.height/2,
+            width: 20,
+            height: game.height
+        });
 
         // Create paddle 1
-        e = s.createEntity();
-        e.transform.position.x = 100;
-        e.transform.position.y = game.height - 50;
-        e.size.x = 100;
-        e.size.y = 10;
-        
-        e.component('physics').body.type = Body.KINEMATIC;
-
-        e.component('fsm')
-            .createState('default')
-            .onEnter(function(ent) {
-                var game = ent.scene.app;
-
-                ent.script = function() {
-                    var xVel = 0;
-                    xVel += game.input.keyboard.A ? -0.5 : 0;
-                    xVel += game.input.keyboard.S ? 0.5 : 0;
-                    ent._components.physics.body.vel.x = xVel;
-                };
-            });
-        // TODO: It's dumb to have to require this if we only add one state...
-        e.component('fsm').enterState('default');
-
+        PongFactory.createPaddle(scene, {
+            x: 100,
+            y: game.height - 50,
+            width: 100,
+            height: 10
+        });
 
         // Create paddle 2
-        e = s.createEntity();
-        e.transform.position.x = 100;
-        e.transform.position.y = 50;
-        e.size.x = 100;
-        e.size.y = 10;
-
-        e.component('physics').body.type = Body.KINEMATIC;
-
-        e.component('fsm')
-            .createState('default')
-            .onEnter(function(ent) {
-                var game = ent.scene.app;
-
-                ent.script = function() {
-                    var xVel = 0;
-                    xVel += game.input.keyboard.K ? -0.5 : 0;
-                    xVel += game.input.keyboard.L ? 0.5 : 0;
-                    ent._components.physics.body.vel.x = xVel;
-                };
-            });
-        // TODO: It's dumb to have to require this if we only add one state...
-        e.component('fsm').enterState('default');
+        PongFactory.createPaddle(scene, {
+            x: 200,
+            y: 50,
+            width: 100,
+            height: 10
+        });
 
         // Create ball
-        e = s.createEntity();
-        e.size.x = 10;
-        e.size.y = 10;
-        e.transform.position.x = game.width/2 - e.size.x/2;
-        e.transform.position.y = game.height/2 - e.size.y/2;
+        var ball = PongFactory.createBall(scene, {
+            x: game.width/2,
+            y: game.height/2,
+            width: 10,
+            height: 10
+        });
+        ball.components.physics.body.applyForce(new Vec2(0.001, 0.01));
 
-        e.component('fsm')
-            .createState('default')
-            .onEnter(function(ent) {
-
-                ent.script = function() {
-                    // stuff ...
-                };
-            });
-        // TODO: It's dumb to have to require this if we only add one state...
-        e.component('fsm').enterState('default');
-
-
-        e.component('physics').body.applyForce(new Vec2(0.001, 0.01));
 
         /**
          * Run game

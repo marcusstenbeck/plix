@@ -5,7 +5,10 @@ define([
 ) {
     'use strict';
 
-    function GraphicsComponent() {
+    function GraphicsComponent(params) {
+        Component.call(this, params);
+        if(!params) params = {};
+
         this.type = 'graphics';
 
         this.graphic = {

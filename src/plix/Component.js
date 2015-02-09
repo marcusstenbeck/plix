@@ -9,6 +9,9 @@ define([
     	if(!params) params = {};
 
         this.entity = params.entity ? params.entity : undefined;
+        if(!this) {
+            console.warn('No entity to attach component to!');
+        }
     }
 
     Component.prototype.setEntity = function(entity) {

@@ -35,9 +35,9 @@ define([
 			
 		this.entities.forEach(function(entity) {
 			if(typeof entity.script === 'function') entity.script(entity);
-			if(entity._components.physics) {
-				entity.transform.position.x = entity._components.physics.body.pos.x;
-				entity.transform.position.y = entity._components.physics.body.pos.y;
+			if(entity.components.physics) {
+				entity.transform.position.x = entity.components.physics.body.pos.x;
+				entity.transform.position.y = entity.components.physics.body.pos.y;
 			}
 		});
 	};
