@@ -31,7 +31,7 @@ define([
 
     Entity.prototype.addComponent = function(component) {
         if(!component.type) {
-            console.warn('No component type!!!');
+            console.warn('No component type!!!', component);
             return;
         }
 
