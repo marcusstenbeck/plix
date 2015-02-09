@@ -28,6 +28,10 @@ define([
     }
     FsmComponent.prototype = Object.create(Component.prototype);
 
+    FsmComponent.prototype.receiveMessage = function(message) {
+        // Do nothing
+    };
+
     FsmComponent.prototype.createState = function(stateName) {
         return this._fsm.createState(stateName);
     };
