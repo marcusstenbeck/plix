@@ -42,6 +42,12 @@ define([
 		});
 	};
 
+	Scene.prototype.broadcastMessage = function(message) {
+        this.entities.forEach(function(ent) {
+        	ent.broadcastMessage(message);
+        });
+    };
+
 	Scene.prototype.render = function(ctx) {
 
 		this.entities.forEach(function(entity) {

@@ -14,6 +14,7 @@ define([
     'plix/Entity',
     'plix/PhysicsComponent',
     'plix/GraphicsComponent',
+    'plix/KeyboardInputComponent',
     'plix/FSMComponent',
     'plix/Util',
     'lib/vendor/physix/src/Body'
@@ -21,6 +22,7 @@ define([
     Entity,
     PhysicsComponent,
     GraphicsComponent,
+    KeyboardInputComponent,
     FSMComponent,
     Util,
     Body
@@ -38,11 +40,20 @@ define([
         paddle.size.x = options.width;
         paddle.size.y = options.height;
         
+
+        // Add physics component
         var pc = new PhysicsComponent({
                 entity: paddle,
                 type: Body.KINEMATIC
             });
         paddle.addComponent(pc);
+
+
+        // Add input component
+        var ic = new KeyboardInputComponent({
+            entity: paddle
+        });
+        paddle.addComponent(ic);
 
         // Create FSM component
         var fsm = new FSMComponent();
@@ -52,10 +63,10 @@ define([
         fsm.createState('default')
             .onEnter(function(ent) {
                 ent.script = function() {
-                    // var xVel = 0;
-                    // xVel += options.keys.left ? -0.5 : 0;
-                    // xVel += options.keys.right ? 0.5 : 0;
-                    // ent.components.physics.body.vel.x = xVel;
+                    var xVel = 0;
+                    xVel += ent.components.input.keys[options.keys.left] ? -0.5 : 0;
+                    xVel += ent.components.input.keys[options.keys.right] ? 0.5 : 0;
+                    ent.components.physics.body.vel.x = xVel;
                 };
             });
         // TODO: It's dumb to have to require this if we only add one state...

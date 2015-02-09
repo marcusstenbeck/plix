@@ -41,8 +41,11 @@ define([
 			key = Util.keyForCode(e.keyCode);
 
 			// Set the key to true if it was pressed
-			if(key) that.input.keyboard[key] = true;
+			if(key) app.input.keyboard[key] = true;
 			else console.warn('Uncaught key code', e.keyCode);
+
+			// Send the event to the current scene
+			app.scenes[app.scenes.length - 1].broadcastMessage('keydown:' + key);
 		});
 
 		// Listen to keyup

@@ -31,6 +31,11 @@ define([
          */
         var scene = game.createScene('main');
 
+
+        /**
+         *  Walls
+         */
+
         // Top wall
         PongFactory.createWall(scene, {
             x: game.width/2,
@@ -49,7 +54,7 @@ define([
 
         // Left wall
         PongFactory.createWall(scene, {
-            x: - 9,
+            x: -9,
             y: game.height/2,
             width: 20,
             height: game.height
@@ -63,12 +68,18 @@ define([
             height: game.height
         });
 
+
+        /**
+         *  Paddles
+         */
+
         // Create paddle 1
         PongFactory.createPaddle(scene, {
             x: 100,
             y: game.height - 50,
             width: 100,
-            height: 10
+            height: 10,
+            keys: { left: 'A', right: 'S' }
         });
 
         // Create paddle 2
@@ -76,8 +87,14 @@ define([
             x: 200,
             y: 50,
             width: 100,
-            height: 10
+            height: 10,
+            keys: { left: 'K', right: 'L' }
         });
+
+
+        /**
+         *  Ball
+         */
 
         // Create ball
         var ball = PongFactory.createBall(scene, {
