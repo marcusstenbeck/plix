@@ -22,16 +22,16 @@ define([
 	}
 
 	PlixApp.prototype._init = function() {
-		var that = this;
-		that.input = {
+		var app = this;
+		app.input = {
 			mouse: { x:0, y:0 },
 			keyboard: {}
 		};
 
 		// Track mouse position
 		this.canvas.addEventListener('mousemove', function(e) {
-			that.input.mouse.x = e.offsetX;
-			that.input.mouse.y = e.offsetY;
+			app.input.mouse.x = e.offsetX;
+			app.input.mouse.y = e.offsetY;
 		});
 
 		var key;
@@ -54,13 +54,16 @@ define([
 			key = Util.keyForCode(e.keyCode);
 
 			// Set key to false when it's not pressed anymore
-			if(key) that.input.keyboard[key] = false;
+			if(key) app.input.keyboard[key] = false;
 			else console.warn('Uncaught key code', e.keyCode);
+
+			// Send the event to the current scene
+			app.scenes[app.scenes.length - 1].broadcastMessage('keyup:' + key);
 		});
 
 		// Set app dimensions
-		this.width = this.canvas.width;
-		this.height = this.canvas.height;
+		app.width = app.canvas.width;
+		app.height = app.canvas.height;
 	};
 
 	PlixApp.prototype.start = function() {		
