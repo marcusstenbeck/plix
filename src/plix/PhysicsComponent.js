@@ -15,12 +15,15 @@ define([
         Component.call(this, params);
         if(!params) params = {};
 
+        // Component type
         this.type = 'physics';
 
+        // Set up physics body
         this.body = new Body();
         this.body.pos = new Vec2(this.entity.transform.position.x, this.entity.transform.position.y);
         this.body.shape.width = this.entity.size.x;
         this.body.shape.height = this.entity.size.y;
+        this.body.type = params.type;
 
         if(!this.entity.scene._physicsWorld) {
             this.entity.scene._physicsWorld = new World();
