@@ -42,11 +42,6 @@ define([
         this.components[component.type] = component;
     };
 
-    Entity.prototype.attachToScene = function (scene) {
-        scene.attachEntity(this);
-        this.scene = scene;
-    };
-
     Entity.prototype.destroy = function() {
         var index = this.scene.entities.indexOf(this);
 

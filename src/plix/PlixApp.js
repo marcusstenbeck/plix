@@ -13,6 +13,8 @@ define([
 		this.canvas = document.getElementById('game');
 		this.ctx = this.canvas.getContext('2d');
 
+		this.running = false;
+
     	this.tpf = 0;
     	this.timeElapsed = 0;
 
@@ -24,7 +26,7 @@ define([
 	PlixApp.prototype._init = function() {
 		var app = this;
 		app.input = {
-			mouse: { x:0, y:0 },
+			mouse: { x:0, y:0, leftButton: false },
 			keyboard: {}
 		};
 
@@ -32,6 +34,14 @@ define([
 		this.canvas.addEventListener('mousemove', function(e) {
 			app.input.mouse.x = e.offsetX;
 			app.input.mouse.y = e.offsetY;
+		});
+
+		// Track mouse click state
+		this.canvas.addEventListener('mousedown', function(/*e*/) {
+			app.input.mouse.leftButton = true;
+		});
+		this.canvas.addEventListener('mouseup', function(/*e*/) {
+			app.input.mouse.leftButton = false;
 		});
 
 		var key;
@@ -66,7 +76,22 @@ define([
 		app.height = app.canvas.height;
 	};
 
-	PlixApp.prototype.start = function() {		
+	PlixApp.prototype.pushScene = function(scene) {
+    	this.scenes.push(scene);
+    	scene.app = this;
+    };
+
+    PlixApp.prototype.popScene = function(scene) {
+    	this.scenes.pop();
+    };
+
+	PlixApp.prototype.runWithScene = function(scene) {		
+		this.pushScene(scene);
+		this._run();
+	};
+
+	PlixApp.prototype._run = function() {
+		if(!this.running) this.running = true;
 		window.requestAnimationFrame( this.update.bind(this) );
 	};
 
@@ -79,25 +104,18 @@ define([
         this.ctx.fillStyle = 'rgba(0,0,0,1)';
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
-        // For each scene in the stack
-        this.scenes.forEach(function(scene) {
-        	scene.update(scene.app.tpf);
-        	scene.render(scene.app.ctx);
-        });
+        if(this.scenes.length) {
+        	// Top scene in the stack
+        	var scene = this.scenes[this.scenes.length -1];
+
+			scene.update(scene.app.tpf);
+			scene.render(scene.app.ctx);
+        }
 
         // Keep the loop going
-        window.requestAnimationFrame( this.update.bind(this) );
-    };
-
-    PlixApp.prototype.createScene = function() {
-    	var s = new Scene();
-    	this.attachScene(s);
-    	return s;
-    };
-
-    PlixApp.prototype.attachScene = function(scene) {
-    	this.scenes.push(scene);
-    	scene.app = this;
+        if(this.running) {
+        	window.requestAnimationFrame( this.update.bind(this) );
+        }
     };
 
     return PlixApp;

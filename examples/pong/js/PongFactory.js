@@ -12,20 +12,24 @@ requirejs.config({
 });
 define([
     'plix/Entity',
+    'plix/Scene',
     'plix/PhysicsComponent',
     'plix/GraphicsComponent',
     'plix/KeyboardInputComponent',
     'plix/FSMComponent',
     'plix/Util',
-    'lib/vendor/physix/src/Body'
+    'lib/vendor/physix/src/Body',
+    'lib/vendor/physix/src/Vec2'
 ], function(
     Entity,
+    Scene,
     PhysicsComponent,
     GraphicsComponent,
     KeyboardInputComponent,
     FSMComponent,
     Util,
-    Body
+    Body,
+    Vec2
 ) {
     'use strict';
 
@@ -33,7 +37,8 @@ define([
 
     PongFactory.createPaddle = function(scene, options) {
 
-        var paddle = scene.createEntity();
+        var paddle = new Entity();
+        scene.attachEntity(paddle);
 
         paddle.transform.position.x = options.x;
         paddle.transform.position.y = options.y;
@@ -77,7 +82,8 @@ define([
 
     PongFactory.createWall = function(scene, options) {
 
-        var wall = scene.createEntity();
+        var wall = new Entity();
+        scene.attachEntity(wall);
 
         wall.transform.position.x = options.x;
         wall.transform.position.y = options.y;
@@ -95,7 +101,8 @@ define([
 
     PongFactory.createBall = function(scene, options) {
 
-        var ball = scene.createEntity();
+        var ball = new Entity();
+        scene.attachEntity(ball);
 
         ball.transform.position.x = options.x;
         ball.transform.position.y = options.y;
@@ -108,7 +115,122 @@ define([
             });
         ball.addComponent(pc);
 
+        ball.script = function(ent) {
+            if(ent.scene.app.input.keyboard.L) {
+                ent.scene.app.popScene();
+            }
+        };
+
         return ball;
+    };
+
+    PongFactory.createLevel = function(app) {
+
+        /**
+         * Create main scene
+         */
+        var scene = new Scene('main');
+
+
+        /**
+         *  Walls
+         */
+
+        // Top wall
+        PongFactory.createWall(scene, {
+            x: app.width/2,
+            y: -10,
+            width: app.width,
+            height: 20
+        });
+
+        // Bottom wall
+        PongFactory.createWall(scene, {
+            x: app.width/2,
+            y: app.height + 10,
+            width: app.width,
+            height: 20
+        });
+
+        // Left wall
+        PongFactory.createWall(scene, {
+            x: -9,
+            y: app.height/2,
+            width: 20,
+            height: app.height
+        });
+
+        // Right wall
+        PongFactory.createWall(scene, {
+            x: app.width + 10,
+            y: app.height/2,
+            width: 20,
+            height: app.height
+        });
+
+
+        /**
+         *  Paddles
+         */
+
+        // Create paddle 1
+        PongFactory.createPaddle(scene, {
+            x: 100,
+            y: app.height - 50,
+            width: 100,
+            height: 10,
+            keys: { left: 'A', right: 'S' }
+        });
+
+        // Create paddle 2
+        PongFactory.createPaddle(scene, {
+            x: 200,
+            y: 50,
+            width: 100,
+            height: 10,
+            keys: { left: 'K', right: 'L' }
+        });
+
+
+        /**
+         *  Ball
+         */
+
+        // Create ball
+        var ball = PongFactory.createBall(scene, {
+            x: app.width/2,
+            y: app.height/2,
+            width: 10,
+            height: 10
+        });
+        ball.components.physics.body.applyForce(new Vec2(0.001, 0.01));
+
+        return scene;
+    };
+
+    PongFactory.createMenu = function(app) {
+
+        /**
+         * Create menu scene
+         */
+        var scene = new Scene('menu');
+
+        var ent = new Entity();
+        scene.attachEntity(ent);
+
+        ent.transform.position.x = app.width / 2;
+        ent.transform.position.y = app.height / 2;
+        ent.size.x = 100;
+        ent.size.y = 20;
+
+        ent.script = function(ent) {
+            if(ent.scene.app.input.mouse.leftButton) {
+                ent.scene.app.pushScene(PongFactory.createLevel(ent.scene.app));
+            }
+            console.log('na');
+        };
+
+        return scene;
     };
 
     return PongFactory;

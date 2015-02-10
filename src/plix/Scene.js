@@ -1,32 +1,37 @@
+requirejs.config({
+    //By default load any module IDs from ../../src
+//    baseUrl: '../../src',
+    //except, if the module ID starts with "app",
+    //load it from the ./examples directory. paths
+    //config is relative to the baseUrl, and
+    //never includes a ".js" extension since
+    //the paths config could be for a directory.
+    paths: {
+        lib: '../../lib'
+    }
+});
 define([
-	'plix/Entity'
 ], function(
-	Entity
 ) {
 	'use strict';
 
 	function Scene() {
 		this.entities = [];
-		this.active = true;
 
-		this.app = null;
+		this.app = undefined;
 	}
 
 	Scene.prototype.getEntityByType = function(type) {
 		for(var i = 0; i < this.entities.length; i++) {
 			if(this.entities[i].type == type) return this.entities[i];
 		}
-		return null;
-	};
 
-	Scene.prototype.createEntity = function() {
-		var ent = new Entity();
-		ent.attachToScene(this);
-		return ent;
+		return;
 	};
 
 	Scene.prototype.attachEntity = function(ent) {
 		this.entities.push(ent);
+		ent.scene = this;
 		return this;
 	};
 
@@ -49,7 +54,6 @@ define([
     };
 
 	Scene.prototype.render = function(ctx) {
-
 		this.entities.forEach(function(entity) {
 			entity.render(ctx);
 		});
