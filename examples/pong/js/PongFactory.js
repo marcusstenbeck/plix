@@ -210,6 +210,8 @@ define([
             width: 10,
             height: 10
         });
+
+        // Give the bal a little push
         ball.components.physics.body.applyForce(new Vec2(0.001, 0.01));
 
         return scene;
@@ -234,7 +236,6 @@ define([
             if(ent.scene.app.input.mouse.leftButton) {
                 ent.scene.app.pushScene(PongFactory.createLevel(ent.scene.app));
             }
-            console.log('na');
         };
 
         return scene;
