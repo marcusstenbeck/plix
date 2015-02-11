@@ -53,11 +53,5 @@ define([
         });
     };
 
-	Scene.prototype.render = function(ctx) {
-		this.entities.forEach(function(entity) {
-			entity.render(ctx);
-		});
-	};
-
     return Scene;
 });

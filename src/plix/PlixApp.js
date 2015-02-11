@@ -1,9 +1,9 @@
 define([
-	'plix/FsmComponent',
+	'plix/Renderer',
 	'plix/Scene',
 	'plix/Util'
 ], function(
-	FsmComponent,
+	Renderer,
 	Scene,
 	Util
 ) {
@@ -12,6 +12,10 @@ define([
 	function PlixApp() {
 		this.canvas = document.getElementById('game');
 		this.ctx = this.canvas.getContext('2d');
+
+		this.renderer = new Renderer({
+			context: this.ctx
+		});
 
 		this.running = false;
 
@@ -109,7 +113,7 @@ define([
         	var scene = this.scenes[this.scenes.length -1];
 
 			scene.update(scene.app.tpf);
-			scene.render(scene.app.ctx);
+			this.renderer.render(scene);
         }
 
         // Keep the loop going
