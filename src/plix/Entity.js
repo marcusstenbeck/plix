@@ -10,12 +10,9 @@ define([
 
         this.components = {};
 
-        this.size = { x:1, y:1 };
-
         this.transform = {
             position: { x:0, y:0 },
-            rotation: 0,
-            scale: { x:0, y:0 }
+            rotation: 0
         };
 
         this.components.graphics = new GraphicsComponent({ entity: this });

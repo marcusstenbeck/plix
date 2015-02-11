@@ -26,10 +26,12 @@ define([
 
             ctx.stroke();
 
-            ctx.strokeRect(entity.transform.position.x - entity.size.x/2 + 0.5,
-                                entity.transform.position.y - entity.size.y/2 + 0.5,
-                                entity.size.x - 1,
-                                entity.size.y - 1);
+            if(entity.components.physics) {
+                ctx.strokeRect(entity.transform.position.x - entity.components.physics.body.shape.width/2 + 0.5,
+                                    entity.transform.position.y - entity.components.physics.body.shape.height/2 + 0.5,
+                                    entity.components.physics.body.shape.width - 1,
+                                    entity.components.physics.body.shape.height - 1);
+            }
         });
     };
 

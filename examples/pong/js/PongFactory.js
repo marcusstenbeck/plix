@@ -42,14 +42,14 @@ define([
 
         paddle.transform.position.x = options.x;
         paddle.transform.position.y = options.y;
-        paddle.size.x = options.width;
-        paddle.size.y = options.height;
         
 
         // Add physics component
         var pc = new PhysicsComponent({
                 entity: paddle,
-                type: Body.KINEMATIC
+                type: Body.KINEMATIC,
+                width: options.width,
+                height: options.height
             });
         paddle.addComponent(pc);
 
@@ -87,13 +87,13 @@ define([
 
         wall.transform.position.x = options.x;
         wall.transform.position.y = options.y;
-        wall.size.x = options.width;
-        wall.size.y = options.height;
 
         var pc = new PhysicsComponent({
                 tag: options.tag || 'wall',
                 entity: wall,
-                type: Body.KINEMATIC
+                type: Body.KINEMATIC,
+                width: options.width,
+                height: options.height
             });
         wall.addComponent(pc);
 
@@ -107,13 +107,13 @@ define([
 
         ball.transform.position.x = options.x;
         ball.transform.position.y = options.y;
-        ball.size.x = options.width;
-        ball.size.y = options.height;
 
         var pc = new PhysicsComponent({
                 tag: 'ball',
                 entity: ball,
                 type: Body.DYNAMIC,
+                width: options.width,
+                height: options.height,
                 onCollision: function(otherBody) {
                     if(otherBody.tag === 'goal1' || otherBody.tag === 'goal2') {
                         console.log('Goal collision!', otherBody.tag);
@@ -226,8 +226,6 @@ define([
 
         ent.transform.position.x = app.width / 2;
         ent.transform.position.y = app.height / 2;
-        ent.size.x = 100;
-        ent.size.y = 20;
 
         ent.script = function(ent) {
             if(ent.scene.app.input.mouse.leftButton) {
