@@ -115,16 +115,13 @@ define([
                 entity: ball,
                 type: Body.DYNAMIC,
                 onCollision: function(otherBody) {
-                    if(otherBody.tag === 'goal') console.log('Goal collision!');
+                    if(otherBody.tag === 'goal1' || otherBody.tag === 'goal2') {
+                        console.log('Goal collision!', otherBody.tag);
+                        ball.scene.app.popScene();
+                    }
                 }
             });
         ball.addComponent(pc);
-
-        ball.script = function(ent) {
-            if(ent.scene.app.input.keyboard.L) {
-                ent.scene.app.popScene();
-            }
-        };
 
         return ball;
     };
