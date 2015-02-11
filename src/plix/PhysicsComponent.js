@@ -24,6 +24,11 @@ define([
         this.body.shape.width = this.entity.size.x;
         this.body.shape.height = this.entity.size.y;
         this.body.type = params.type;
+        this.body.tag = params.tag || '';
+
+        if(typeof params.onCollision === 'function') {
+            this.body.onCollision = params.onCollision;
+        }
 
         if(!this.entity.scene._physicsWorld) {
             this.entity.scene._physicsWorld = new World();

@@ -91,6 +91,7 @@ define([
         wall.size.y = options.height;
 
         var pc = new PhysicsComponent({
+                tag: options.tag || 'wall',
                 entity: wall,
                 type: Body.KINEMATIC
             });
@@ -110,8 +111,12 @@ define([
         ball.size.y = options.height;
 
         var pc = new PhysicsComponent({
+                tag: 'ball',
                 entity: ball,
-                type: Body.DYNAMIC
+                type: Body.DYNAMIC,
+                onCollision: function(otherBody) {
+                    if(otherBody.tag === 'goal') console.log('Goal collision!');
+                }
             });
         ball.addComponent(pc);
 
@@ -141,7 +146,8 @@ define([
             x: app.width/2,
             y: -10,
             width: app.width,
-            height: 20
+            height: 20,
+            tag: 'goal1'
         });
 
         // Bottom wall
@@ -149,7 +155,8 @@ define([
             x: app.width/2,
             y: app.height + 10,
             width: app.width,
-            height: 20
+            height: 20,
+            tag: 'goal2'
         });
 
         // Left wall
