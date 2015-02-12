@@ -3,14 +3,21 @@ define([
 ) {
     'use strict';
 
-    function Renderer(params) {
+    function CanvasRenderer(params) {
         if(!params) params = {};
 
-        this.context = params.context;
+        this.canvas = params.canvas;
+
+        this.context = this.canvas.getContext('2d');
     }
 
-    Renderer.prototype.render = function(scene) {
+    CanvasRenderer.prototype.render = function(scene) {
         var ctx = this.context;
+
+        // Wipe the canvas clean
+        ctx.fillStyle = 'rgba(0,0,0,1)';
+        ctx.fillRect(0, 0, scene.app.canvas.width, scene.app.canvas.height);
+
         scene.entities.forEach(function(entity) {
             // Get color from entity
             var color = entity.components.graphics.graphic.color;
@@ -35,15 +42,5 @@ define([
         });
     };
 
-    return Renderer;
+    return CanvasRenderer;
 });
-
-    // Scene.prototype.render = function(ctx) {
-    //     this.entities.forEach(function(entity) {
-    //         entity.render(ctx);
-    //     });
-    // };
-
-// Entity.prototype.render = function(ctx) {
-//         
-//     };

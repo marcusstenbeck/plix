@@ -1,5 +1,5 @@
 define([
-	'plix/Renderer',
+	'plix/CanvasRenderer',
 	'plix/Scene',
 	'plix/Util'
 ], function(
@@ -11,10 +11,9 @@ define([
 
 	function PlixApp() {
 		this.canvas = document.getElementById('game');
-		this.ctx = this.canvas.getContext('2d');
 
 		this.renderer = new Renderer({
-			context: this.ctx
+			canvas: this.canvas
 		});
 
 		this.running = false;
@@ -103,10 +102,6 @@ define([
     	// Update time
 		this.tpf = time - this.timeElapsed;
         this.timeElapsed = time;
-
-        // Wipe the canvas clean
-        this.ctx.fillStyle = 'rgba(0,0,0,1)';
-        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
         if(this.scenes.length) {
         	// Top scene in the stack
