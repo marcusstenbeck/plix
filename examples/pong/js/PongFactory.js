@@ -209,23 +209,61 @@ define([
         });
 
         // Give the bal a little push
-        ball.components.physics.body.applyForce(new Vec2(0.001, 0.01));
+        ball.components.physics.body.applyForce(new Vec2(
+                (Math.random()-0.5)*0.1,
+                Math.sign(Math.random()-0.5) * Math.max(Math.random()*0.05, 0.01)
+            ));
 
         return scene;
     };
 
     PongFactory.createMenu = function(app) {
 
+        var figLayout = [
+            [0, 1, 1,  0,  1, 0, 0,  0,  1, 1, 1,  0,  0, 1, 1,  0,  1, 0, 1],
+            [1, 0, 0,  0,  1, 0, 0,  0,  0, 1, 0,  0,  1, 0, 0,  0,  1, 1, 0],
+            [1, 0, 0,  0,  1, 0, 0,  0,  0, 1, 0,  0,  1, 0, 0,  0,  1, 0, 0],
+            [1, 0, 0,  0,  1, 0, 0,  0,  0, 1, 0,  0,  1, 0, 0,  0,  1, 1, 0],
+            [0, 1, 1,  0,  1, 1, 1,  0,  1, 1, 1,  0,  0, 1, 1,  0,  1, 0, 1],
+
+            [0, 0, 0,  0,  0, 0, 0,  0,  0, 0, 0,  0,  0, 0, 0,  0,  0, 0, 0],
+            [0, 0, 0,  0,  0, 0, 0,  0,  0, 0, 0,  0,  0, 0, 0,  0,  0, 0, 0],
+
+            [0, 0, 0,  0,  0, 0, 0,  0,  1, 1, 0,  0,  0, 0, 0,  0,  0, 0, 0],
+            [0, 0, 0,  0,  0, 0, 0,  0,  0, 0, 1,  0,  0, 0, 0,  0,  0, 0, 0],
+            [0, 0, 0,  0,  0, 0, 0,  0,  0, 1, 0,  0,  0, 0, 0,  0,  0, 0, 0],
+            [0, 0, 0,  0,  0, 0, 0,  0,  1, 0, 0,  0,  0, 0, 0,  0,  0, 0, 0],
+            [0, 0, 0,  0,  0, 0, 0,  0,  1, 1, 1,  0,  0, 0, 0,  0,  0, 0, 0],
+
+            [0, 0, 0,  0,  0, 0, 0,  0,  0, 0, 0,  0,  0, 0, 0,  0,  0, 0, 0],
+            [0, 0, 0,  0,  0, 0, 0,  0,  0, 0, 0,  0,  0, 0, 0,  0,  0, 0, 0],
+
+            [0, 1, 1,  0,  1, 1, 1,  0,  0, 1, 0,  0,  1, 1, 0,  0,  1, 1, 1],
+            [1, 0, 0,  0,  0, 1, 0,  0,  1, 0, 1,  0,  1, 0, 1,  0,  0, 1, 0],
+            [0, 1, 0,  0,  0, 1, 0,  0,  1, 1, 1,  0,  1, 1, 0,  0,  0, 1, 0],
+            [0, 0, 1,  0,  0, 1, 0,  0,  1, 0, 1,  0,  1, 0, 1,  0,  0, 1, 0],
+            [1, 1, 0,  0,  0, 1, 0,  0,  1, 0, 1,  0,  1, 0, 1,  0,  0, 1, 0]
+        ];
+
         /**
          * Create menu scene
          */
         var scene = new Scene('menu');
 
-        var ent = new Entity();
-        scene.attachEntity(ent);
+        var ent;
+        for(var r = 0; r < figLayout.length; r++) {
+            for(var c = 0; c < figLayout[r].length; c++) {
+                if(figLayout[r][c]) {
 
-        ent.transform.position.x = app.width / 2;
-        ent.transform.position.y = app.height / 2;
+                    ent = new Entity();
+                    scene.attachEntity(ent);
+
+                    ent.transform.position.x = 10*c - 85 + (app.width / 2);
+                    ent.transform.position.y = 10*r - 100 + (app.height / 2);
+                }
+            }
+        }
+
 
         ent.script = function(ent) {
             if(ent.scene.app.input.mouse.leftButton) {
