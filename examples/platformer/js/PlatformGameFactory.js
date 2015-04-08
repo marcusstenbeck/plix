@@ -63,6 +63,10 @@ define([
                         // Trigger grounded state
                         playerEntity.components.fsm._fsm.triggerEvent('ground');
                     }
+
+                    if(otherBody.tag === 'goal') {
+                        scene.app.popScene();
+                    }
                 }
             });
         playerEntity.addComponent(pc);
@@ -170,16 +174,25 @@ define([
         PlatformGameFactory.createWall(scene, {
             x: app.width/2,
             y: app.height - 20,
-            width: app.width - 20,
+            width: 3 * app.width,
             height: 20
         });
 
-        // Create a floor
+        // Create the little floor obstacle
         PlatformGameFactory.createWall(scene, {
             x: app.width/2 + 30,
             y: app.height - 45,
             width: 30,
             height: 30
+        });
+
+        // Create a goal
+        PlatformGameFactory.createWall(scene, {
+            x: app.width/2 + 500,
+            y: app.height - 60,
+            width: 30,
+            height: 30,
+            tag: 'goal'
         });
 
         // TODO: Be able to set gravity!!!
