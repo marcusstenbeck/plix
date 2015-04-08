@@ -142,6 +142,8 @@ define([
     };
 
     PlatformGameFactory.createLevel = function(app) {
+        // TODO: I don't at all like this locking mechanism - it's too arbitrary
+        PlatformGameFactory.lock = false;
 
         /**
          * Create main scene
@@ -170,16 +172,30 @@ define([
         PlatformGameFactory.createWall(scene, {
             x: app.width/2,
             y: app.height - 20,
-            width: app.width - 20,
+            width: 3 * app.width,
             height: 20
         });
 
-        // Create a floor
+        // Create the little floor obstacle
         PlatformGameFactory.createWall(scene, {
             x: app.width/2 + 30,
             y: app.height - 45,
             width: 30,
             height: 30
+        });
+
+        // Create a goal
+        PlatformGameFactory.createGoal(scene, {
+            x: app.width/2 + 500,
+            y: app.height - 60,
+            width: 30,
+            height: 30,
+            onCollision: function onCollision() {
+                if(!PlatformGameFactory.lock) {
+                    PlatformGameFactory.lock = true;
+                    scene.app.popScene();
+                }
+            }
         });
 
         // TODO: Be able to set gravity!!!
@@ -262,6 +278,33 @@ define([
         };
 
         return camera;
+    };
+
+    PlatformGameFactory.createGoal = function(scene, options) {
+        options || (options = {});
+
+        var goal = new Entity();
+        scene.attachEntity(goal);
+
+        goal.transform.position.x = options.x;
+        goal.transform.position.y = options.y;
+
+        var physicsOptions = {
+            tag: options.tag || 'goal',
+            entity: goal,
+            type: Body.KINEMATIC,
+            width: options.width,
+            height: options.height
+        };
+
+        if(!!options.onCollision) {
+            physicsOptions.onCollision = options.onCollision;
+        }
+
+        var pc = new PhysicsComponent(physicsOptions);
+        goal.addComponent(pc);
+
+        return goal;
     };
 
     return PlatformGameFactory;
