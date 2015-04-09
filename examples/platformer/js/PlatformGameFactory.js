@@ -65,7 +65,7 @@ define([
                     }
 
                     if(otherBody.tag === 'goal') {
-                        scene.app.popScene();
+                        scene.app.nextLevel();
                     }
                 }
             });
@@ -145,7 +145,25 @@ define([
         return wall;
     };
 
-    PlatformGameFactory.createLevel = function(app) {
+    PlatformGameFactory.createLevel = function(levelNumber, app) {
+        if(!levelNumber) return;
+
+        switch(levelNumber) {
+            case 1:
+                return this.createLevel1(app);
+                break;
+
+            case 2:
+                return this.createLevel2(app);
+                break;
+
+            case 3:
+                return this.createLevel3(app);
+                break;
+        }
+    };
+
+    PlatformGameFactory.createLevel1 = function(app) {
 
         /**
          * Create main scene
@@ -205,6 +223,150 @@ define([
         return scene;
     };
 
+    PlatformGameFactory.createLevel2 = function(app) {
+
+        /**
+         * Create main scene
+         */
+        var scene = new Scene('main');
+
+        // Create player
+        var player = PlatformGameFactory.createPlayer(scene, {
+            x: 100,
+            y: app.height - 80,
+            width: 50,
+            height: 70,
+            keys: {
+                left: 'A',
+                right: 'S',
+                jump: 'K'
+            }
+        });
+
+        // We want the camera to follow the player
+        PlatformGameFactory.createCamera(scene, {
+            follow: player
+        });
+
+        // Create a floor
+        PlatformGameFactory.createWall(scene, {
+            x: app.width/2,
+            y: app.height - 20,
+            width: 3 * app.width,
+            height: 20
+        });
+
+        // Create the little floor obstacle
+        PlatformGameFactory.createWall(scene, {
+            x: app.width/2 + 30,
+            y: app.height - 45,
+            width: 30,
+            height: 30
+        });
+
+        // Create the little floor obstacle
+        PlatformGameFactory.createWall(scene, {
+            x: app.width/2 + 30,
+            y: app.height - 85,
+            width: 30,
+            height: 30
+        });
+
+        // Create a goal
+        PlatformGameFactory.createWall(scene, {
+            x: app.width/2 + 500,
+            y: app.height - 60,
+            width: 30,
+            height: 30,
+            tag: 'goal'
+        });
+
+        // TODO: Be able to set gravity!!!
+        if(scene._physicsWorld) {
+            console.log('set gravity');
+            scene._physicsWorld.gravity = new Vec2(0, 0.005);
+        }
+
+
+        return scene;
+    };
+
+    PlatformGameFactory.createLevel3 = function(app) {
+
+        /**
+         * Create main scene
+         */
+        var scene = new Scene('main');
+
+        // Create player
+        var player = PlatformGameFactory.createPlayer(scene, {
+            x: 100,
+            y: app.height - 80,
+            width: 50,
+            height: 70,
+            keys: {
+                left: 'A',
+                right: 'S',
+                jump: 'K'
+            }
+        });
+
+        // We want the camera to follow the player
+        PlatformGameFactory.createCamera(scene, {
+            follow: player
+        });
+
+        // Create a floor
+        PlatformGameFactory.createWall(scene, {
+            x: app.width/2,
+            y: app.height - 20,
+            width: 3 * app.width,
+            height: 20
+        });
+
+        // Create the little floor obstacle
+        PlatformGameFactory.createWall(scene, {
+            x: app.width/2 + 30,
+            y: app.height - 45,
+            width: 30,
+            height: 30
+        });
+
+        // Create the little floor obstacle
+        PlatformGameFactory.createWall(scene, {
+            x: app.width/2 + 200,
+            y: app.height - 120,
+            width: 30,
+            height: 30
+        });
+
+        // Create the little floor obstacle
+        PlatformGameFactory.createWall(scene, {
+            x: app.width/2 + 350,
+            y: app.height - 180,
+            width: 30,
+            height: 30
+        });
+
+        // Create a goal
+        PlatformGameFactory.createWall(scene, {
+            x: app.width/2 + 500,
+            y: app.height - 300,
+            width: 30,
+            height: 30,
+            tag: 'goal'
+        });
+
+        // TODO: Be able to set gravity!!!
+        if(scene._physicsWorld) {
+            console.log('set gravity');
+            scene._physicsWorld.gravity = new Vec2(0, 0.005);
+        }
+
+
+        return scene;
+    };
+
     PlatformGameFactory.createMenu = function(app) {
 
         var figLayout = [
@@ -247,7 +409,7 @@ define([
 
         ent.script = function(ent) {
             if(ent.scene.app.input.mouse.leftButton) {
-                ent.scene.app.pushScene(PlatformGameFactory.createLevel(ent.scene.app));
+                ent.scene.app.pushScene(PlatformGameFactory.createLevel1(ent.scene.app));
             }
         };
 
