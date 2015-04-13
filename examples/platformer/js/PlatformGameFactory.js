@@ -67,6 +67,10 @@ define([
                     if(otherBody.tag === 'goal') {
                         scene.app.nextLevel();
                     }
+
+                    if(otherBody.tag === 'enemy') {
+                        scene.app.playerDied();
+                    }
                 }
             });
         playerEntity.addComponent(pc);
@@ -356,6 +360,16 @@ define([
             height: 30,
             tag: 'goal'
         });
+
+        // Create an enemy
+        var ent = PlatformGameFactory.createWall(scene, {
+            x: app.width/2 + 500,
+            y: app.height - 60,
+            width: 600,
+            height: 30,
+            tag: 'enemy'
+        });
+        ent.components.graphics.graphic.color = [1, 0, 0, 1];
 
         // TODO: Be able to set gravity!!!
         if(scene._physicsWorld) {
