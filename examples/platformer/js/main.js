@@ -27,6 +27,10 @@ define([
     app.currentLevelIndex = 0;
     app.lives = 3;
 
+    app.resetGame = function() {
+        app.currentLevelIndex = 0;
+        app.lives = 3;
+    };
 
     app.nextLevel = function nextLevel() {
         app.popScene();
@@ -35,7 +39,7 @@ define([
         
         if(app.currentLevelIndex >= app.levelIds.length) {
             console.log('No more levels. Do not try to push level scene onto stack.');
-            app.currentLevelIndex = 0;
+            app.resetGame();
             return;
         }
 
@@ -62,7 +66,7 @@ define([
         if(app.lives > 0) {
             app.loadLevel(app.levelIds[app.currentLevelIndex]);
         } else {
-            app.lives = 3;
+            app.resetGame();
         }
     };
 
