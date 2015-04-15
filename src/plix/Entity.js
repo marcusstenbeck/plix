@@ -42,6 +42,8 @@ define([
     };
 
     Entity.prototype.destroy = function() {
+        this.broadcastMessage('destroy');
+
         var index = this.scene.entities.indexOf(this);
 
         // Remove the entity from the scene list
