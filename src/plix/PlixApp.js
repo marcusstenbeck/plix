@@ -1,5 +1,5 @@
 define([
-	'plix/CanvasRenderer',
+	'plix/WebGLRenderer',
 	'plix/Scene',
 	'plix/Util'
 ], function(
