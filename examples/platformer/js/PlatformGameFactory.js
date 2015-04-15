@@ -176,8 +176,8 @@ define([
 
         // Create player
         var player = PlatformGameFactory.createPlayer(scene, {
-            x: 100,
-            y: app.height - 80,
+            x: -200,
+            y: -80,
             width: 50,
             height: 70,
             keys: {
@@ -194,24 +194,24 @@ define([
 
         // Create a floor
         PlatformGameFactory.createWall(scene, {
-            x: app.width/2,
-            y: app.height - 20,
-            width: 3 * app.width,
+            x: 0,
+            y: -20,
+            width: 2400,
             height: 20
         });
 
         // Create the little floor obstacle
         PlatformGameFactory.createWall(scene, {
-            x: app.width/2 + 30,
-            y: app.height - 45,
+            x: 30,
+            y: -45,
             width: 30,
             height: 30
         });
 
         // Create a goal
         PlatformGameFactory.createWall(scene, {
-            x: app.width/2 + 500,
-            y: app.height - 60,
+            x: 500,
+            y: -60,
             width: 30,
             height: 30,
             tag: 'goal'
@@ -236,8 +236,8 @@ define([
 
         // Create player
         var player = PlatformGameFactory.createPlayer(scene, {
-            x: 100,
-            y: app.height - 80,
+            x: -200,
+            y: -80,
             width: 50,
             height: 70,
             keys: {
@@ -254,32 +254,32 @@ define([
 
         // Create a floor
         PlatformGameFactory.createWall(scene, {
-            x: app.width/2,
-            y: app.height - 20,
-            width: 3 * app.width,
+            x: 0,
+            y: -20,
+            width: 2400,
             height: 20
         });
 
         // Create the little floor obstacle
         PlatformGameFactory.createWall(scene, {
-            x: app.width/2 + 30,
-            y: app.height - 45,
+            x: 30,
+            y: -45,
             width: 30,
             height: 30
         });
 
         // Create the little floor obstacle
         PlatformGameFactory.createWall(scene, {
-            x: app.width/2 + 30,
-            y: app.height - 85,
+            x: 30,
+            y: -85,
             width: 30,
             height: 30
         });
 
         // Create a goal
         PlatformGameFactory.createWall(scene, {
-            x: app.width/2 + 500,
-            y: app.height - 60,
+            x: 500,
+            y: -60,
             width: 30,
             height: 30,
             tag: 'goal'
@@ -304,8 +304,8 @@ define([
 
         // Create player
         var player = PlatformGameFactory.createPlayer(scene, {
-            x: 100,
-            y: app.height - 80,
+            x: -200,
+            y: -80,
             width: 50,
             height: 70,
             keys: {
