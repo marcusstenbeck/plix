@@ -172,6 +172,7 @@ define([
         var pickup = this.createWall(scene, options);
 
         pickup.components.graphics.graphic.color = [1, 1, 0, 1];
+        pickup.components.physics.body.isSensor = true;
         pickup.components.physics.on('collision', function(otherBody, collisionVector) {
             if(otherBody.tag === 'player') {
                 console.log('yo i am a pickup and i got picked up');
