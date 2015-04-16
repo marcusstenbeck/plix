@@ -92,7 +92,7 @@ define([
             xForce += ent.components.input.keys[options.keys.left] ? -0.01 : 0;
             xForce += ent.components.input.keys[options.keys.right] ? 0.01 : 0;
 
-            if(xForce != 0) {
+            if(xForce !== 0) {
                 ent.components.physics.body.applyForce({ x: xForce, y: 0 });
             }
             ent.components.physics.body.vel.x *= 0.8;
@@ -151,7 +151,7 @@ define([
     };
 
     PlatformGameFactory.createEnemy = function(scene, options) {
-        options || (options = {});
+        options = options || {};
 
         options.tag = 'enemy';
 
@@ -163,7 +163,7 @@ define([
     };
 
     PlatformGameFactory.createPickup = function(scene, options) {
-        options || (options = {});
+        options = options || {};
 
         options.tag = 'pickup';
         options.width = options.width || 15;
@@ -173,7 +173,7 @@ define([
 
         pickup.components.graphics.graphic.color = [1, 1, 0, 1];
         pickup.components.physics.body.isSensor = true;
-        pickup.components.physics.on('collision', function(otherBody, collisionVector) {
+        pickup.components.physics.on('collision', function(otherBody/*, collisionVector*/) {
             if(otherBody.tag === 'player') {
                 console.log('yo i am a pickup and i got picked up');
                 this.entity.destroy();
@@ -184,25 +184,22 @@ define([
         return pickup;
     };
 
-    PlatformGameFactory.createLevel = function(levelNumber, app) {
+    PlatformGameFactory.createLevel = function(levelNumber) {
         if(!levelNumber) return;
 
         switch(levelNumber) {
             case 1:
-                return this.createLevel1(app);
-                break;
+                return this.createLevel1();
 
             case 2:
-                return this.createLevel2(app);
-                break;
+                return this.createLevel2();
 
             case 3:
-                return this.createLevel3(app);
-                break;
+                return this.createLevel3();
         }
     };
 
-    PlatformGameFactory.createLevel1 = function(app) {
+    PlatformGameFactory.createLevel1 = function() {
 
         /**
          * Create main scene
@@ -267,7 +264,7 @@ define([
         return scene;
     };
 
-    PlatformGameFactory.createLevel2 = function(app) {
+    PlatformGameFactory.createLevel2 = function() {
 
         /**
          * Create main scene
@@ -335,7 +332,7 @@ define([
         return scene;
     };
 
-    PlatformGameFactory.createLevel3 = function(app) {
+    PlatformGameFactory.createLevel3 = function() {
 
         /**
          * Create main scene
@@ -474,7 +471,7 @@ define([
     };
 
     PlatformGameFactory.createCamera = function(scene, options) {
-        options || (options = {});
+        options = options || {};
 
         var camera = new Entity();
 
