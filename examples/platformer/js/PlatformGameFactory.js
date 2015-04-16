@@ -52,27 +52,28 @@ define([
                 type: Body.DYNAMIC,
                 width: options.width,
                 height: options.height,
-                onCollision: function(otherBody, collisionVector) {
-                    if(
-                        Math.abs(collisionVector.x) < 
-                        Math.abs(collisionVector.y) && 
-                        collisionVector.y < 0) {
-                        // Landed, so don't bounce!
-                        this.vel.y = 0;
-
-                        // Trigger grounded state
-                        playerEntity.components.fsm._fsm.triggerEvent('ground');
-                    }
-
-                    if(otherBody.tag === 'goal') {
-                        scene.app.nextLevel();
-                    }
-
-                    if(otherBody.tag === 'enemy') {
-                        scene.app.playerDied();
-                    }
-                }
+                tag: 'player'
             });
+        pc.on('collision', function(otherBody, collisionVector) {
+            if(
+                Math.abs(collisionVector.x) < 
+                Math.abs(collisionVector.y) && 
+                collisionVector.y < 0) {
+                // Landed, so don't bounce!
+                this.body.vel.y = 0;
+
+                // Trigger grounded state
+                playerEntity.components.fsm._fsm.triggerEvent('ground');
+            }
+
+            if(otherBody.tag === 'goal') {
+                scene.app.nextLevel();
+            }
+
+            if(otherBody.tag === 'enemy') {
+                scene.app.playerDied();
+            }
+        });
         playerEntity.addComponent(pc);
 
 
@@ -149,6 +150,40 @@ define([
         return wall;
     };
 
+    PlatformGameFactory.createEnemy = function(scene, options) {
+        options || (options = {});
+
+        options.tag = 'enemy';
+
+        var enemy = this.createWall(scene, options);
+
+        enemy.components.graphics.graphic.color = [1, 0, 0, 1];
+
+        return enemy;
+    };
+
+    PlatformGameFactory.createPickup = function(scene, options) {
+        options || (options = {});
+
+        options.tag = 'pickup';
+        options.width = options.width || 15;
+        options.height = options.height || 15;
+
+        var pickup = this.createWall(scene, options);
+
+        pickup.components.graphics.graphic.color = [1, 1, 0, 1];
+        pickup.components.physics.body.isSensor = true;
+        pickup.components.physics.on('collision', function(otherBody, collisionVector) {
+            if(otherBody.tag === 'player') {
+                console.log('yo i am a pickup and i got picked up');
+                this.entity.destroy();
+            }
+        });
+                   
+
+        return pickup;
+    };
+
     PlatformGameFactory.createLevel = function(levelNumber, app) {
         if(!levelNumber) return;
 
@@ -176,8 +211,8 @@ define([
 
         // Create player
         var player = PlatformGameFactory.createPlayer(scene, {
-            x: 100,
-            y: app.height - 80,
+            x: -200,
+            y: -80,
             width: 50,
             height: 70,
             keys: {
@@ -194,24 +229,29 @@ define([
 
         // Create a floor
         PlatformGameFactory.createWall(scene, {
-            x: app.width/2,
-            y: app.height - 20,
-            width: 3 * app.width,
+            x: 0,
+            y: -20,
+            width: 2400,
             height: 20
         });
 
         // Create the little floor obstacle
         PlatformGameFactory.createWall(scene, {
-            x: app.width/2 + 30,
-            y: app.height - 45,
+            x: 30,
+            y: -45,
             width: 30,
             height: 30
         });
 
+        PlatformGameFactory.createPickup(scene, {
+            x: 200,
+            y: -180
+        });
+
         // Create a goal
         PlatformGameFactory.createWall(scene, {
-            x: app.width/2 + 500,
-            y: app.height - 60,
+            x: 500,
+            y: -60,
             width: 30,
             height: 30,
             tag: 'goal'
@@ -236,8 +276,8 @@ define([
 
         // Create player
         var player = PlatformGameFactory.createPlayer(scene, {
-            x: 100,
-            y: app.height - 80,
+            x: -200,
+            y: -80,
             width: 50,
             height: 70,
             keys: {
@@ -254,32 +294,32 @@ define([
 
         // Create a floor
         PlatformGameFactory.createWall(scene, {
-            x: app.width/2,
-            y: app.height - 20,
-            width: 3 * app.width,
+            x: 0,
+            y: -20,
+            width: 2400,
             height: 20
         });
 
         // Create the little floor obstacle
         PlatformGameFactory.createWall(scene, {
-            x: app.width/2 + 30,
-            y: app.height - 45,
+            x: 30,
+            y: -45,
             width: 30,
             height: 30
         });
 
         // Create the little floor obstacle
         PlatformGameFactory.createWall(scene, {
-            x: app.width/2 + 30,
-            y: app.height - 85,
+            x: 30,
+            y: -85,
             width: 30,
             height: 30
         });
 
         // Create a goal
         PlatformGameFactory.createWall(scene, {
-            x: app.width/2 + 500,
-            y: app.height - 60,
+            x: 500,
+            y: -60,
             width: 30,
             height: 30,
             tag: 'goal'
@@ -304,8 +344,8 @@ define([
 
         // Create player
         var player = PlatformGameFactory.createPlayer(scene, {
-            x: 100,
-            y: app.height - 80,
+            x: -200,
+            y: -80,
             width: 50,
             height: 70,
             keys: {
@@ -322,54 +362,57 @@ define([
 
         // Create a floor
         PlatformGameFactory.createWall(scene, {
-            x: app.width/2,
-            y: app.height - 20,
-            width: 3 * app.width,
+            x: 0,
+            y: -20,
+            width: 2400,
             height: 20
         });
 
         // Create the little floor obstacle
         PlatformGameFactory.createWall(scene, {
-            x: app.width/2 + 30,
-            y: app.height - 45,
+            x: 30,
+            y: -45,
             width: 30,
             height: 30
         });
 
         // Create the little floor obstacle
         PlatformGameFactory.createWall(scene, {
-            x: app.width/2 + 200,
-            y: app.height - 120,
+            x: 200,
+            y: -120,
             width: 30,
             height: 30
         });
 
         // Create the little floor obstacle
         PlatformGameFactory.createWall(scene, {
-            x: app.width/2 + 350,
-            y: app.height - 180,
+            x: 350,
+            y: -180,
             width: 30,
             height: 30
         });
 
         // Create a goal
         PlatformGameFactory.createWall(scene, {
-            x: app.width/2 + 500,
-            y: app.height - 300,
+            x: 500,
+            y: -300,
             width: 30,
             height: 30,
             tag: 'goal'
         });
 
         // Create an enemy
-        var ent = PlatformGameFactory.createWall(scene, {
-            x: app.width/2 + 500,
-            y: app.height - 60,
+        PlatformGameFactory.createEnemy(scene, {
+            x: 500,
+            y: -60,
             width: 600,
-            height: 30,
-            tag: 'enemy'
+            height: 30
         });
-        ent.components.graphics.graphic.color = [1, 0, 0, 1];
+
+        PlatformGameFactory.createPickup(scene, {
+            x: 390,
+            y: -250
+        });
 
         // TODO: Be able to set gravity!!!
         if(scene._physicsWorld) {
