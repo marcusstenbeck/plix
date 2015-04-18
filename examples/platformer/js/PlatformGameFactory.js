@@ -214,15 +214,8 @@ define([
             if(otherBody.tag === 'player') {
                 console.log('yo i am a pickup and i got picked up');
 
-                var that = this;
-                try {
-
-                    var w = this.body.shape.width/2;
-                    var h = this.body.shape.height/2;
-                } catch (e) {
-                    console.log(that);
-                    throw that.body;
-                }
+                var w = this.body.shape.width/2;
+                var h = this.body.shape.height/2;
 
                 var collisionDirection = new Vec2(collisionVector.x, collisionVector.y);
                 collisionDirection.normalize();
@@ -465,11 +458,10 @@ define([
             height: 30
         });
 
-        var pickup = PlatformGameFactory.createPickup(scene, {
+        PlatformGameFactory.createPickup(scene, {
             x: 390,
             y: -250
         });
-        console.log(pickup.components.physics);
 
         // TODO: Be able to set gravity!!!
         if(scene._physicsWorld) {
