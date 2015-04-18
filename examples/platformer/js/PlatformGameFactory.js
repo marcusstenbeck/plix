@@ -35,6 +35,9 @@ define([
 ) {
     'use strict';
 
+    var PHYSICS_LAYER_ONE = 0b01;
+    var PHYSICS_LAYER_TWO = 0b10;
+
     function PlatformGameFactory() {}
 
     PlatformGameFactory.createPlayer = function(scene, options) {
@@ -52,7 +55,8 @@ define([
                 type: Body.DYNAMIC,
                 width: options.width,
                 height: options.height,
-                tag: 'player'
+                tag: 'player',
+                layer: PHYSICS_LAYER_ONE
             });
         pc.on('collision', function(otherBody, collisionVector) {
             if(
@@ -143,7 +147,8 @@ define([
                 entity: wall,
                 type: Body.KINEMATIC,
                 width: options.width,
-                height: options.height
+                height: options.height,
+                layer: PHYSICS_LAYER_ONE | PHYSICS_LAYER_TWO
             });
         wall.addComponent(pc);
 
@@ -169,13 +174,67 @@ define([
         options.width = options.width || 15;
         options.height = options.height || 15;
 
+        function spawnFrag(scene, options) {
+            options = options || {};
+
+            var frag = new Entity();
+            scene.attachEntity(frag);
+
+            frag.transform.position.x = options.xPos;
+            frag.transform.position.y = options.yPos;
+
+            // Add physics component
+            var pc = new PhysicsComponent({
+                mass: 1,
+                entity: frag,
+                type: Body.DYNAMIC,
+                width: options.width,
+                height: options.height,
+                tag: 'frag',
+                layer: PHYSICS_LAYER_TWO
+            });
+            frag.addComponent(pc);
+
+            var timeUntilDestroy = 1000 + 500*Math.random();
+            setTimeout(function() {
+                frag.destroy();
+            }, timeUntilDestroy);
+
+            // var scale = 0.0001;
+            pc.body.applyForce(options.f);
+
+            frag.components.graphics.graphic.color = [1, 1, 0, 1];
+        }
+
         var pickup = this.createWall(scene, options);
 
         pickup.components.graphics.graphic.color = [1, 1, 0, 1];
         pickup.components.physics.body.isSensor = true;
-        pickup.components.physics.on('collision', function(otherBody/*, collisionVector*/) {
+        pickup.components.physics.on('collision', function(otherBody, collisionVector) {
             if(otherBody.tag === 'player') {
                 console.log('yo i am a pickup and i got picked up');
+
+                var that = this;
+                try {
+
+                    var w = this.body.shape.width/2;
+                    var h = this.body.shape.height/2;
+                } catch (e) {
+                    console.log(that);
+                    throw that.body;
+                }
+
+                var collisionDirection = new Vec2(collisionVector.x, collisionVector.y);
+                collisionDirection.normalize();
+                collisionDirection.x *= -10;
+                collisionDirection.y *= -10;
+                var scale = 0.001;
+
+                spawnFrag(this.entity.scene, { width: w, height: h, xPos: this.entity.transform.position.x + w/2, yPos: this.entity.transform.position.y + h/2, f: new Vec2(scale * (1 + collisionDirection.x), scale * (-40 + collisionDirection.y)) });
+                spawnFrag(this.entity.scene, { width: w, height: h, xPos: this.entity.transform.position.x + w/2, yPos: this.entity.transform.position.y - h/2, f: new Vec2(scale * (0.5 + collisionDirection.x), scale * (-30 + collisionDirection.y)) });
+                spawnFrag(this.entity.scene, { width: w, height: h, xPos: this.entity.transform.position.x - w/2, yPos: this.entity.transform.position.y + h/2, f: new Vec2(scale * (-2 + collisionDirection.x), scale * (-40 + collisionDirection.y)) });
+                spawnFrag(this.entity.scene, { width: w, height: h, xPos: this.entity.transform.position.x - w/2, yPos: this.entity.transform.position.y - h/2, f: new Vec2(scale * (-0.5 + collisionDirection.x), scale * (-30 + collisionDirection.y)) });
+
                 this.entity.destroy();
             }
         });
@@ -406,10 +465,11 @@ define([
             height: 30
         });
 
-        PlatformGameFactory.createPickup(scene, {
+        var pickup = PlatformGameFactory.createPickup(scene, {
             x: 390,
             y: -250
         });
+        console.log(pickup.components.physics);
 
         // TODO: Be able to set gravity!!!
         if(scene._physicsWorld) {
