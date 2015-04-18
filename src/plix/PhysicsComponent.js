@@ -25,6 +25,8 @@ define([
         this.body.shape.height = params.height || 1;
         this.body.type = params.type || Body.DYNAMIC;
         this.body.tag = params.tag || '';
+        this.body.mass = parseInt(params.mass) || 1;
+        this.body.layer = typeof params.layer === 'number' ? params.layer : 0b01;
 
         if(!this.entity.scene._physicsWorld) {
             this.entity.scene._physicsWorld = new World();
