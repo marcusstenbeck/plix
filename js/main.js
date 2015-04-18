@@ -1,6 +1,6 @@
 requirejs.config({
     // Default loading base url
-    baseUrl: './reeiiisssss',
+    baseUrl: './',
     //except, if the module ID starts with "app",
     //load it from the ./examples directory. paths
     //config is relative to the baseUrl, and
@@ -8,7 +8,7 @@ requirejs.config({
     //the paths config could be for a directory.
     paths: {
         lib: './weiiii/lib',
-        plix: './zzazzz/src/plix'
+        plix: '../src/plix'
     }
 });
 define([
