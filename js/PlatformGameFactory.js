@@ -16,7 +16,7 @@ define([
     'plix/PhysicsComponent',
     'plix/GraphicsComponent',
     'plix/KeyboardInputComponent',
-    'plix/FSMComponent',
+    'plix/FsmComponent',
     'plix/CameraComponent',
     'plix/Util',
     'lib/vendor/physix/src/Body',
