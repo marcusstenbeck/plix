@@ -8,7 +8,7 @@ requirejs.config({
     //the paths config could be for a directory.
     paths: {
         lib: './weiiii/lib',
-        plix: '../src/plix'
+        plix: './src/plix'
     }
 });
 define([
