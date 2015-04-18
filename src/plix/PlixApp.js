@@ -1,5 +1,5 @@
 define([
-	'plix/CanvasRenderer',
+	'plix/WebGLRenderer',
 	'plix/Scene',
 	'plix/Util'
 ], function(
@@ -95,7 +95,8 @@ define([
 
 	PlixApp.prototype._run = function() {
 		if(!this.running) this.running = true;
-		window.requestAnimationFrame( this.update.bind(this) );
+		this.update_ = this.update.bind(this);
+		window.requestAnimationFrame( this.update_ );
 	};
 
     PlixApp.prototype.update = function(time) {
@@ -113,7 +114,7 @@ define([
 
         // Keep the loop going
         if(this.running) {
-        	window.requestAnimationFrame( this.update.bind(this) );
+        	window.requestAnimationFrame( this.update_ );
         }
     };
 
