@@ -1,0 +1,33 @@
+{
+  "name": "physix",
+  "homepage": "https://github.com/marcusstenbeck/physix",
+  "authors": [
+    "marcusstenbeck <marcus.stenbeck@gmail.com>"
+  ],
+  "description": "A simple physics engine.",
+  "main": "./build/physix.js",
+  "moduleType": [
+    "amd"
+  ],
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "requirejs": "~2.1.15"
+  },
+  "_release": "f2a2f0e991",
+  "_resolution": {
+    "type": "branch",
+    "branch": "master",
+    "commit": "f2a2f0e9917ebafafbe10ac6c37c3682225facb8"
+  },
+  "_source": "git://github.com/marcusstenbeck/physix.git",
+  "_target": "*",
+  "_originalSource": "marcusstenbeck/physix"
+}

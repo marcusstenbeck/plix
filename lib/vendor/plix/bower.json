@@ -1,0 +1,24 @@
+{
+  "name": "plix",
+  "version": "0.0.1",
+  "homepage": "https://github.com/marcusstenbeck/plix",
+  "authors": [
+    "marcusstenbeck <marcus.stenbeck@gmail.com>"
+  ],
+  "moduleType": [
+    "amd"
+  ],
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "fsm": "marcusstenbeck/fsm",
+    "physix": "marcusstenbeck/physix"
+  }
+}

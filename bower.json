@@ -1,4 +1,5 @@
 {
+  "name": "plix gh-pages",
   "ignore": [
     "**/.*",
     "node_modules",
