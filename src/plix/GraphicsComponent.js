@@ -25,5 +25,22 @@ define([
 
     GraphicsComponent.prototype.receiveMessage = function() {};
 
+    GraphicsComponent.prototype.setSprite = function (options) {
+        options = options || {};
+
+        var img = new Image();
+        img.src = options.imagePath;
+
+        this.graphic = {
+            type: 'sprite',
+            image: img,
+            shapeData: {
+                type: 'rectangle',
+                width: options.width,
+                height: options.height
+            }
+        };
+    };
+
     return GraphicsComponent;
 });
