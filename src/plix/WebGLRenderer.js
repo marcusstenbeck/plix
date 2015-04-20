@@ -106,153 +106,114 @@ define([
     }
 
     WebGLRenderer.prototype.render = function(scene) {
-        var cameraComponent;
 
         // YOLO: choose the first occurence of the camera
         var entity;
+        var cameraComponent;
         for(var i = 0; i < scene.entities.length; i++) {
-            var entity = scene.entities[i];
+            entity = scene.entities[i];
 
-            if(entity.components['camera']) {
+            if(!!entity.components.camera) {
                 cameraComponent = entity.components.camera;
             }
         }
 
-        if(!!cameraComponent) {
-            this._renderWithCamera({
-                cameraComponent: cameraComponent,
-                scene: scene
-            });
-        } else {
-            this._renderWithoutCamera(scene);
-        }
+        this._render({
+            cameraComponent: cameraComponent,
+            scene: scene
+        });
     };
 
-    WebGLRenderer.prototype._renderWithCamera = function(options) {
-        options || (options = {});
+    WebGLRenderer.prototype._render = function(options) {
+        options = options || {};
 
         var scene = options.scene;
-        var camPosition = {
-            x: options.cameraComponent.entity.transform.position.x - (scene.app.width / 2),
-            y: options.cameraComponent.entity.transform.position.y - (scene.app.height / 2)
+
+        var offset = { x:0, y:0 };
+
+        if(!!options.cameraComponent) {
+            offset.x = options.cameraComponent.entity.transform.position.x - (scene.app.width / 2);
+            offset.y = options.cameraComponent.entity.transform.position.y - (scene.app.height / 2);
         }
 
-        var gl = this.context;
+        /**
+         *  Clear canvas
+         */
+        this.clear(this.context);
 
-        // Wipe the canvas clean
-        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-        // width and height will be used to scale coordinates
-        var width = scene.app.canvas.width;
-        var height = scene.app.canvas.height;
-
-        var pRelToCam;
+        /**
+         *  Draw entities
+         */
         scene.entities.forEach(function(entity) {
-            
-            pRelToCam = {
-                x: entity.transform.position.x - camPosition.x,
-                y: entity.transform.position.y - camPosition.y
-            }   
 
-            var color = entity.components.graphics.graphic.color;
-            gl.uniform4fv(gl.program.uColor, new Float32Array(color));
+            // this.drawSprite();
 
-            var verts = [
-                // Center cross (x,y) tuples
-                pRelToCam.x - 3, pRelToCam.y - 3,
-                pRelToCam.x + 3, pRelToCam.y + 3,
-                pRelToCam.x + 3, pRelToCam.y - 3,
-                pRelToCam.x - 3, pRelToCam.y + 3,
-            ];
+            this.drawDebug(this.context, entity, {
+                offset: offset
+            });
 
-            if(entity.components.physics) {
-
-                verts = verts.concat([
-                    // Bounding box
-                    pRelToCam.x - entity.components.physics.body.shape.width/2 + 0.5, pRelToCam.y - entity.components.physics.body.shape.height/2 + 0.5,
-                    pRelToCam.x + entity.components.physics.body.shape.width/2 - 0.5, pRelToCam.y - entity.components.physics.body.shape.height/2 + 0.5,
-                    
-                    pRelToCam.x + entity.components.physics.body.shape.width/2 - 0.5, pRelToCam.y - entity.components.physics.body.shape.height/2 + 0.5,
-                    pRelToCam.x + entity.components.physics.body.shape.width/2 - 0.5, pRelToCam.y + entity.components.physics.body.shape.height/2 - 0.5,
-
-                    pRelToCam.x + entity.components.physics.body.shape.width/2 - 0.5, pRelToCam.y + entity.components.physics.body.shape.height/2 - 0.5,
-                    pRelToCam.x - entity.components.physics.body.shape.width/2 + 0.5, pRelToCam.y + entity.components.physics.body.shape.height/2 - 0.5,
-
-                    pRelToCam.x - entity.components.physics.body.shape.width/2 + 0.5, pRelToCam.y + entity.components.physics.body.shape.height/2 - 0.5,
-                    pRelToCam.x - entity.components.physics.body.shape.width/2 + 0.5, pRelToCam.y - entity.components.physics.body.shape.height/2 + 0.5,
-                ]);
-            }
-
-            // Translate to GL coordinates
-            for(var i = 0; i < verts.length; i += 2) {
-                verts[i  ] = (verts[i] / width) * 2 - 1;
-                verts[i+1] = ((height - verts[i+1]) / height) * 2 - 1;
-            }
-
-            // Upload to buffer
-            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(verts), gl.DYNAMIC_DRAW);
-
-            // Draw buffer
-            var vPosSize = 2;
-            gl.drawArrays(gl.LINES, 0, verts.length/vPosSize);
-
-        });
+        }.bind(this));
     };
 
-    WebGLRenderer.prototype._renderWithoutCamera = function(scene) {
-        var gl = this.context;
-
+    WebGLRenderer.prototype.clear = function(gl) {
         // Wipe the canvas clean
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    };
+
+    WebGLRenderer.prototype.drawDebug = function(gl, entity, options) {
+        options = options || {};
 
         // width and height will be used to scale coordinates
-        var width = scene.app.canvas.width;
-        var height = scene.app.canvas.height;
+        var width = entity.scene.app.canvas.width;
+        var height = entity.scene.app.canvas.height;
+        var offset = options.offset;
+        var pos = {
+            x: entity.transform.position.x - offset.x,
+            y: entity.transform.position.y - offset.y
+        };
 
-        scene.entities.forEach(function(entity) {
+        var color = entity.components.graphics.graphic.color || [1, 1, 1, 1];
+        gl.uniform4fv(gl.program.uColor, new Float32Array(color));
 
-            var color = entity.components.graphics.graphic.color;
-            gl.uniform4fv(gl.program.uColor, new Float32Array(color));
+        var verts = [
+            // Center cross (x,y) tuples
+            pos.x - 3, pos.y - 3,
+            pos.x + 3, pos.y + 3,
+            pos.x + 3, pos.y - 3,
+            pos.x - 3, pos.y + 3,
+        ];
 
-            var verts = [
-                // Center cross (x,y) tuples
-                entity.transform.position.x - 3, entity.transform.position.y - 3,
-                entity.transform.position.x + 3, entity.transform.position.y + 3,
-                entity.transform.position.x + 3, entity.transform.position.y - 3,
-                entity.transform.position.x - 3, entity.transform.position.y + 3,
-            ];
+        if(entity.components.physics) {
 
-            if(entity.components.physics) {
-                verts = verts.concat([
-                    // Bounding box
-                    entity.transform.position.x - entity.components.physics.body.shape.width/2 + 0.5, entity.transform.position.y - entity.components.physics.body.shape.height/2 + 0.5,
-                    entity.transform.position.x + entity.components.physics.body.shape.width/2 - 0.5, entity.transform.position.y - entity.components.physics.body.shape.height/2 + 0.5,
-                    
-                    entity.transform.position.x + entity.components.physics.body.shape.width/2 - 0.5, entity.transform.position.y - entity.components.physics.body.shape.height/2 + 0.5,
-                    entity.transform.position.x + entity.components.physics.body.shape.width/2 - 0.5, entity.transform.position.y + entity.components.physics.body.shape.height/2 - 0.5,
+            verts = verts.concat([
+                // Bounding box
+                pos.x - entity.components.physics.body.shape.width/2 + 0.5, pos.y - entity.components.physics.body.shape.height/2 + 0.5,
+                pos.x + entity.components.physics.body.shape.width/2 - 0.5, pos.y - entity.components.physics.body.shape.height/2 + 0.5,
 
-                    entity.transform.position.x + entity.components.physics.body.shape.width/2 - 0.5, entity.transform.position.y + entity.components.physics.body.shape.height/2 - 0.5,
-                    entity.transform.position.x - entity.components.physics.body.shape.width/2 + 0.5, entity.transform.position.y + entity.components.physics.body.shape.height/2 - 0.5,
+                pos.x + entity.components.physics.body.shape.width/2 - 0.5, pos.y - entity.components.physics.body.shape.height/2 + 0.5,
+                pos.x + entity.components.physics.body.shape.width/2 - 0.5, pos.y + entity.components.physics.body.shape.height/2 - 0.5,
 
-                    entity.transform.position.x - entity.components.physics.body.shape.width/2 + 0.5, entity.transform.position.y + entity.components.physics.body.shape.height/2 - 0.5,
-                    entity.transform.position.x - entity.components.physics.body.shape.width/2 + 0.5, entity.transform.position.y - entity.components.physics.body.shape.height/2 + 0.5,
-                ]);
-            }
+                pos.x + entity.components.physics.body.shape.width/2 - 0.5, pos.y + entity.components.physics.body.shape.height/2 - 0.5,
+                pos.x - entity.components.physics.body.shape.width/2 + 0.5, pos.y + entity.components.physics.body.shape.height/2 - 0.5,
 
-            // Translate to GL coordinates
-            for(var i = 0; i < verts.length; i += 2) {
-                verts[i  ] = (verts[i] / width) * 2 - 1;
-                verts[i+1] = ((height - verts[i+1]) / height) * 2 - 1;
-            }
+                pos.x - entity.components.physics.body.shape.width/2 + 0.5, pos.y + entity.components.physics.body.shape.height/2 - 0.5,
+                pos.x - entity.components.physics.body.shape.width/2 + 0.5, pos.y - entity.components.physics.body.shape.height/2 + 0.5,
+            ]);
+        }
 
-            // Upload to buffer
-            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(verts), gl.DYNAMIC_DRAW);
+        // Translate to GL coordinates
+        for(var i = 0; i < verts.length; i += 2) {
+            verts[i  ] = (verts[i] / width) * 2 - 1;
+            verts[i+1] = ((height - verts[i+1]) / height) * 2 - 1;
+        }
 
-            // Draw buffer
-            var vPosSize = 2;
-            gl.drawArrays(gl.LINES, 0, verts.length/vPosSize);
+        // Upload to buffer
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(verts), gl.DYNAMIC_DRAW);
 
-        });
+        // Draw buffer
+        var vPosSize = 2;
+        gl.drawArrays(gl.LINES, 0, verts.length/vPosSize);
     };
 
     return WebGLRenderer;
