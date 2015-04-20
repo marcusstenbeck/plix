@@ -37,8 +37,43 @@ define([
 
     var PHYSICS_LAYER_ONE = 0b01;
     var PHYSICS_LAYER_TWO = 0b10;
+    var finished = false;
+
+    function finishLevel(scene) {
+        if(!finished) {
+            finished = true;
+
+            /**
+             *  stop controls
+             */
+
+
+            /**
+             *  display finish graphic
+             */
+            
+            PlatformGameFactory.createFinishEffect(scene);
+
+            /**
+             *  wait for keyboard input for next level
+             */
+
+            console.log(scene);
+        }
+    }
 
     function PlatformGameFactory() {}
+
+    PlatformGameFactory.createFinishEffect = function(scene, options) {
+        var finishText = new Entity();
+        scene.attachEntity(finishText);
+
+        finishText.components.graphics.setSprite({
+            imagePath: 'image/finish.png',
+            width: 1042,
+            height: 252
+        });
+    };
 
     PlatformGameFactory.createPlayer = function(scene, options) {
 
@@ -71,7 +106,7 @@ define([
             }
 
             if(otherBody.tag === 'goal') {
-                scene.app.nextLevel();
+                finishLevel(scene);
             }
 
             if(otherBody.tag === 'enemy') {
