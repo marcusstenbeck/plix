@@ -70,8 +70,8 @@ define([
 
         finishText.components.graphics.setSprite({
             imagePath: 'image/finish.png',
-            width: 1042,
-            height: 252
+            width: 1024,
+            height: 256
         });
     };
 
