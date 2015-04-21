@@ -277,32 +277,32 @@ define([
 
         var verts = [
             // Center cross (x,y) tuples
-            pos.x - 3, pos.y - 3,
-            pos.x + 3, pos.y + 3,
-            pos.x + 3, pos.y - 3,
-            pos.x - 3, pos.y + 3,
+            pos.x - 3, pos.y - 3, 0, 0,
+            pos.x + 3, pos.y + 3, 0, 0,
+            pos.x + 3, pos.y - 3, 0, 0,
+            pos.x - 3, pos.y + 3, 0, 0,
         ];
 
         if(entity.components.physics) {
 
             verts = verts.concat([
                 // Bounding box
-                pos.x - entity.components.physics.body.shape.width/2 + 0.5, pos.y - entity.components.physics.body.shape.height/2 + 0.5,
-                pos.x + entity.components.physics.body.shape.width/2 - 0.5, pos.y - entity.components.physics.body.shape.height/2 + 0.5,
+                pos.x - entity.components.physics.body.shape.width/2 + 0.5, pos.y - entity.components.physics.body.shape.height/2 + 0.5, 0, 0,
+                pos.x + entity.components.physics.body.shape.width/2 - 0.5, pos.y - entity.components.physics.body.shape.height/2 + 0.5, 0, 0,
 
-                pos.x + entity.components.physics.body.shape.width/2 - 0.5, pos.y - entity.components.physics.body.shape.height/2 + 0.5,
-                pos.x + entity.components.physics.body.shape.width/2 - 0.5, pos.y + entity.components.physics.body.shape.height/2 - 0.5,
+                pos.x + entity.components.physics.body.shape.width/2 - 0.5, pos.y - entity.components.physics.body.shape.height/2 + 0.5, 0, 0,
+                pos.x + entity.components.physics.body.shape.width/2 - 0.5, pos.y + entity.components.physics.body.shape.height/2 - 0.5, 0, 0,
 
-                pos.x + entity.components.physics.body.shape.width/2 - 0.5, pos.y + entity.components.physics.body.shape.height/2 - 0.5,
-                pos.x - entity.components.physics.body.shape.width/2 + 0.5, pos.y + entity.components.physics.body.shape.height/2 - 0.5,
+                pos.x + entity.components.physics.body.shape.width/2 - 0.5, pos.y + entity.components.physics.body.shape.height/2 - 0.5, 0, 0,
+                pos.x - entity.components.physics.body.shape.width/2 + 0.5, pos.y + entity.components.physics.body.shape.height/2 - 0.5, 0, 0,
 
-                pos.x - entity.components.physics.body.shape.width/2 + 0.5, pos.y + entity.components.physics.body.shape.height/2 - 0.5,
-                pos.x - entity.components.physics.body.shape.width/2 + 0.5, pos.y - entity.components.physics.body.shape.height/2 + 0.5,
+                pos.x - entity.components.physics.body.shape.width/2 + 0.5, pos.y + entity.components.physics.body.shape.height/2 - 0.5, 0, 0,
+                pos.x - entity.components.physics.body.shape.width/2 + 0.5, pos.y - entity.components.physics.body.shape.height/2 + 0.5, 0, 0,
             ]);
         }
 
         // Translate to GL coordinates
-        for(var i = 0; i < verts.length; i += 2) {
+        for(var i = 0; i < verts.length; i += 4) {
             verts[i  ] = (verts[i] / width) * 2 - 1;
             verts[i+1] = ((height - verts[i+1]) / height) * 2 - 1;
         }
@@ -311,7 +311,7 @@ define([
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(verts), gl.DYNAMIC_DRAW);
 
         // Draw buffer
-        var vPosSize = 2;
+        var vPosSize = 4;
         gl.drawArrays(gl.LINES, 0, verts.length/vPosSize);
     };
 
