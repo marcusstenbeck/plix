@@ -84,7 +84,7 @@ define([
         var gl = this.canvas.getContext('webgl', { antialias: true });
 
         gl.clearColor(0.0, 0.0, 0.0, 1.0);
-        gl.enable(gl.DEPTH_TEST);
+        // gl.enable(gl.DEPTH_TEST);
 
         // Vertex buffers
         this.vBuffer = gl.createBuffer();
@@ -124,6 +124,8 @@ define([
         // Setup shader uniform: color
         gl.program.uColor = gl.getUniformLocation(gl.program, 'uColor');
         
+        gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+        gl.enable(gl.BLEND);
 
         this.context = gl;
     }
