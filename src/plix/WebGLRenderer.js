@@ -4,10 +4,14 @@ define([
     'use strict';
 
     var vs = [
-        'attribute vec3 vPos;',
+        'attribute vec2 vPos;',
+
+        'attribute vec2 a_tc_diffuse;',
+        'varying vec2 v_tc_diffuse;',
 
         'void main(void) {',
-        '    gl_Position = vec4(vPos, 1.0);',
+        '   v_tc_diffuse = a_tc_diffuse;',
+        '   gl_Position = vec4(vPos, 0.0, 1.0);',
         '}'
     ].join('\n');
 
@@ -17,8 +21,12 @@ define([
 
         'uniform vec4 uColor;',
 
+        'uniform sampler2D u_t_diffuse;',
+        'varying vec2 v_tc_diffuse;',
+
         'void main(void) {',
-        '    gl_FragColor = vec4(uColor);',
+        '   vec4 color = texture2D(u_t_diffuse, v_tc_diffuse) + vec4(0.1, 0.1, 0.1, 0.0);',
+        '   gl_FragColor = vec4(color);',
         '}'
     ].join('\n');
 
@@ -94,9 +102,24 @@ define([
                 2,
                 gl.FLOAT,
                 false,
-                0,
-                0
+                16, // sizeof(gl.FLOAT)*4 = 4*4 => 16
+                0   // first => 0
             );
+
+        // Setup shader attribute: a_tc_diffuse
+        gl.program.a_tc_diffuse = gl.getAttribLocation(gl.program, 'a_tc_diffuse');
+        gl.enableVertexAttribArray(gl.program.a_tc_diffuse);
+        gl.vertexAttribPointer(
+                gl.program.a_tc_diffuse,
+                2,
+                gl.FLOAT,
+                false,
+                16, // sizeof(gl.FLOAT) * 4 = 4*4 => 16
+                8   // sizeof(gl.FLOAT)*2 = 4*2 => 8
+            );
+
+        // Setup shader uniform: u_t_diffuse
+        gl.program.u_t_diffuse = gl.getUniformLocation(gl.program, 'u_t_diffuse');
 
         // Setup shader uniform: color
         gl.program.uColor = gl.getUniformLocation(gl.program, 'uColor');
@@ -147,7 +170,9 @@ define([
          */
         scene.entities.forEach(function(entity) {
 
-            // this.drawSprite();
+            this.drawSprite(this.context, entity, {
+                offset: offset
+            });
 
             this.drawDebug(this.context, entity, {
                 offset: offset
@@ -159,6 +184,78 @@ define([
     WebGLRenderer.prototype.clear = function(gl) {
         // Wipe the canvas clean
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    };
+
+    WebGLRenderer.prototype.drawSprite = function(gl, entity, options) {
+        options = options || {};
+
+        if(!entity.components.graphics) return;
+        
+        // width and height will be used to scale coordinates
+        var width = entity.scene.app.canvas.width;
+        var height = entity.scene.app.canvas.height;
+        var offset = options.offset;
+        var pos = {
+            x: entity.transform.position.x - offset.x,
+            y: entity.transform.position.y - offset.y
+        };
+
+        var color = entity.components.graphics.graphic.color || [1, 1, 1, 1];
+        gl.uniform4fv(gl.program.uColor, new Float32Array(color));
+
+        var halfWidth = entity.components.graphics.graphic.shapeData.width/2;
+        var halfHeight = entity.components.graphics.graphic.shapeData.height/2;
+
+        var verts = [
+            // Tri 1
+            pos.x - halfWidth, pos.y - halfHeight, 0, 1,
+            pos.x - halfWidth, pos.y + halfHeight, 0, 0,
+            pos.x + halfWidth, pos.y + halfHeight, 1, 0,
+
+
+            // Tri 2
+            pos.x - halfWidth, pos.y - halfHeight, 0, 1, 
+            pos.x + halfWidth, pos.y - halfHeight, 1, 1,
+            pos.x + halfWidth, pos.y + halfHeight, 1, 0,
+        ];
+
+        // Translate to GL coordinates
+        for(var i = 0; i < verts.length; i += 4) {
+            verts[i  ] = (verts[i] / width) * 2 - 1;
+            verts[i+1] = ((height - verts[i+1]) / height) * 2 - 1;
+        }
+
+        // Upload to buffer
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(verts), gl.DYNAMIC_DRAW);
+
+
+        if(entity.components.graphics.graphic.type === 'sprite' && !!entity.components.graphics.graphic.image.isLoaded) {
+            var texture = gl.createTexture();
+
+            gl.bindTexture(gl.TEXTURE_2D, texture);
+            gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+            // Give the image to OpenGL
+            // texImage2D(target, level, internalfmt, fmt, type, obj)
+            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, entity.components.graphics.graphic.image);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+            // gl.bindTexture(gl.TEXTURE_2D, null);
+
+
+            gl.activeTexture(gl.TEXTURE0);
+            gl.bindTexture(gl.TEXTURE_2D, texture);
+            gl.uniform1i(gl.program.u_t_diffuse, 0);
+        }
+
+
+
+
+
+
+        // Draw buffer
+        var vPosSize = 4;
+        gl.drawArrays(gl.TRIANGLES, 0, verts.length/vPosSize);
+        gl.bindTexture(gl.TEXTURE_2D, null);
     };
 
     WebGLRenderer.prototype.drawDebug = function(gl, entity, options) {

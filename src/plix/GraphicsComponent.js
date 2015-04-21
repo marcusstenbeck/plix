@@ -30,10 +30,15 @@ define([
 
         var img = new Image();
         img.src = options.imagePath;
+        img.onload = function () {
+            img.isLoaded = true;
+            console.log('loaded image');
+        };
 
         this.graphic = {
             type: 'sprite',
             image: img,
+            isLoaded: false,
             shapeData: {
                 type: 'rectangle',
                 width: options.width,
