@@ -37,8 +37,101 @@ define([
 
     var PHYSICS_LAYER_ONE = 0b01;
     var PHYSICS_LAYER_TWO = 0b10;
+    var finished = false;
+
+    function easeOutElastic(duration, time) {
+        var t = time;
+        var b = 0;
+        var c = 1;
+        var d = duration;
+
+        var s=1.70158; var p=0; var a=c;
+        if (t===0) return b;  if ((t/=d)===1) return b+c;  if (!p) p=d*0.3;
+        if (a < Math.abs(c)) { a=c; s=p/4; }
+        else s = p/(2*Math.PI) * Math.asin (c/a);
+        return a*Math.pow(2,-10*t) * Math.sin( (t*d-s)*(2*Math.PI)/p ) + c + b;
+    }
+
+    function easeOutExpo(duration, time) {
+        var t = time;
+        var b = 0;
+        var c = 1;
+        var d = duration;
+
+        return (t==d) ? b+c : c * (-Math.pow(2, -10 * t/d) + 1) + b;
+    }
+
+    function easeOutCubic(duration, time) {
+        var t = time;
+        var b = 0;
+        var c = 1;
+        var d = duration;
+
+        return (t>=d) ? b+c : c*((t=t/d-1)*t*t + 1) + b;
+    }
+
+    function finishLevel(scene) {
+        if(!finished) {
+            finished = true;
+
+            /**
+             *  stop controls
+             */
+
+
+            /**
+             *  display finish graphic
+             */
+
+            var fg = PlatformGameFactory.createFinishEffect(scene);
+
+            for(var i = 0; i < scene.entities.length; i++) {
+                if(!!scene.entities[i].components.camera) {
+                    fg.camEnt = scene.entities[i];
+                    console.log('found it!');
+                    break;
+                }
+            }
+
+            fg.script = function(ent) {
+                if(!ent.startTime) ent.startTime = ent.scene.app.timeElapsed;
+
+                var dt = ent.scene.app.timeElapsed - ent.startTime;
+                var f = easeOutElastic(1000, dt);
+                
+                ent.transform.position.x = ent.camEnt.transform.position.x;
+                ent.transform.position.y = ent.camEnt.transform.position.y;
+
+                if(f === 1) return;
+                ent.components.graphics.graphic.scale.x = f;
+                ent.components.graphics.graphic.scale.y = f;
+            };
+
+
+            /**
+             *  wait for keyboard input for next level
+             */
+            setTimeout(function() {
+                scene.app.nextLevel();
+                finished = false;
+            }, 2000);
+        }
+    }
 
     function PlatformGameFactory() {}
+
+    PlatformGameFactory.createFinishEffect = function(scene, options) {
+        var finishText = new Entity();
+        scene.attachEntity(finishText);
+
+        finishText.components.graphics.setSprite({
+            imagePath: 'image/finish.png',
+            width: 512,
+            height: 128
+        });
+
+        return finishText;
+    };
 
     PlatformGameFactory.createPlayer = function(scene, options) {
 
@@ -71,11 +164,13 @@ define([
             }
 
             if(otherBody.tag === 'goal') {
-                scene.app.nextLevel();
+                finishLevel(scene);
             }
 
             if(otherBody.tag === 'enemy') {
-                scene.app.playerDied();
+                if(!finished) {
+                    scene.app.playerDied();
+                }
             }
         });
         playerEntity.addComponent(pc);
@@ -102,11 +197,24 @@ define([
             ent.components.physics.body.vel.x *= 0.8;
         };
 
+        var scaleJump = function(ent) {
+            var yVel = -ent.components.physics.body.vel.y;
+            var factor = 0.5;
+            
+            var squash = factor * yVel;
+            squash = squash > 1 ? 1 : squash;
+            squash = squash < -0.8 ? -0.8 : squash;
+
+            ent.components.graphics.graphic.scale.x = 1 - squash;
+            ent.components.graphics.graphic.scale.y = 1 + squash;
+        };
+
         // Configure FSM
         fsm.createState('grounded')
             .onEnter(function(ent) {
                 ent.script = function() {
                     sideMove(ent);
+                    scaleJump(ent);
 
                     if(ent.components.input.keys[options.keys.jump]) {
                         // Add jumping force
@@ -118,18 +226,31 @@ define([
                         // Trigger jump event
                         fsm._fsm.triggerEvent('jump');
                     }
+
                 };
+
+                // Super ugly way of doing this...better though a bus or something
+                playerEntity.scene._groundedHappened = true;
             })
             .addTransition('jump', 'jumping');
 
         fsm.createState('jumping')
             .onEnter(function(ent) {
-                ent.script = sideMove;
+                ent.script = function() {
+                    sideMove(ent);
+                    scaleJump(ent);
+                };
             })
             .addTransition('ground', 'grounded');
         
         // Start in the jumping state
         fsm.enterState('jumping');
+
+        playerEntity.components.graphics.setSprite({
+            imagePath: 'image/robot.png',
+            width: options.width,
+            height: options.height
+        });
 
         return playerEntity;
     };
@@ -152,6 +273,13 @@ define([
             });
         wall.addComponent(pc);
 
+        wall.components.graphics.setSprite({
+            imagePath: 'image/grass.png',
+            width: options.width,
+            height: options.height
+        });
+
+
         return wall;
     };
 
@@ -162,9 +290,29 @@ define([
 
         var enemy = this.createWall(scene, options);
 
-        enemy.components.graphics.graphic.color = [1, 0, 0, 1];
+        enemy.components.graphics.setSprite({
+            imagePath: 'image/zorp.png',
+            width: options.width,
+            height: options.height
+        });
 
         return enemy;
+    };
+
+    PlatformGameFactory.createGoal = function(scene, options) {
+        options = options || {};
+
+        options.tag = 'goal';
+
+        var goal = this.createWall(scene, options);
+
+        goal.components.graphics.setSprite({
+            imagePath: 'image/bullseye.png',
+            width: options.width,
+            height: options.height
+        });
+
+        return goal;
     };
 
     PlatformGameFactory.createPickup = function(scene, options) {
@@ -203,7 +351,11 @@ define([
             // var scale = 0.0001;
             pc.body.applyForce(options.f);
 
-            frag.components.graphics.graphic.color = [1, 1, 0, 1];
+            frag.components.graphics.setSprite({
+                imagePath: 'image/gold-nest.png',
+                width: options.width,
+                height: options.height
+            });
         }
 
         var pickup = this.createWall(scene, options);
@@ -230,6 +382,12 @@ define([
 
                 this.entity.destroy();
             }
+        });
+
+        pickup.components.graphics.setSprite({
+            imagePath: 'image/gold-nest.png',
+            width: options.width,
+            height: options.height
         });
                    
 
@@ -298,12 +456,11 @@ define([
         });
 
         // Create a goal
-        PlatformGameFactory.createWall(scene, {
+        PlatformGameFactory.createGoal(scene, {
             x: 500,
             y: -60,
             width: 30,
-            height: 30,
-            tag: 'goal'
+            height: 30
         });
 
         // TODO: Be able to set gravity!!!
@@ -366,12 +523,11 @@ define([
         });
 
         // Create a goal
-        PlatformGameFactory.createWall(scene, {
+        PlatformGameFactory.createGoal(scene, {
             x: 500,
             y: -60,
             width: 30,
-            height: 30,
-            tag: 'goal'
+            height: 30
         });
 
         // TODO: Be able to set gravity!!!
@@ -442,12 +598,11 @@ define([
         });
 
         // Create a goal
-        PlatformGameFactory.createWall(scene, {
+        PlatformGameFactory.createGoal(scene, {
             x: 500,
             y: -300,
             width: 30,
-            height: 30,
-            tag: 'goal'
+            height: 30
         });
 
         // Create an enemy
@@ -508,6 +663,12 @@ define([
 
                     ent.transform.position.x = 10*c - 85 + (app.width / 2);
                     ent.transform.position.y = 10*r - 100 + (app.height / 2);
+
+                    ent.components.graphics.setSprite({
+                        imagePath: 'image/gold-nest.png',
+                        width: 10,
+                        height: 10
+                    });
                 }
             }
         }
@@ -536,10 +697,27 @@ define([
 
         camera.addComponent(cc);
 
+        camera.startTime = 0;
         camera.script = function(ent) {
             // YOLO: ent.components.camera.follow is totally ducktyped
             ent.transform.position.x += 0.1 * (ent.components.camera.follow.transform.position.x - ent.transform.position.x);// + 30 * Math.cos(scene.app.timeElapsed * 0.005);
             ent.transform.position.y += 0.1 * (ent.components.camera.follow.transform.position.y - ent.transform.position.y);// + 30 * Math.sin(scene.app.timeElapsed * 0.005);
+
+
+
+            var duration = 500;
+            
+            if(!!ent.scene._groundedHappened) {
+                ent.scene._groundedHappened = false;
+                ent.startTime = ent.scene.app.timeElapsed;
+            } else {
+                var dt = ent.scene.app.timeElapsed - ent.startTime;
+                var f = 1 - easeOutCubic(duration, dt);
+
+                ent.transform.position.x += 5 * f * Math.sin(ent.scene.app.timeElapsed);
+                ent.transform.position.y += 15 * f * Math.sin(0.3*ent.scene.app.timeElapsed);
+
+            }
         };
 
         return camera;
