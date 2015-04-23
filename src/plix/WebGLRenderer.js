@@ -206,8 +206,8 @@ define([
         var color = entity.components.graphics.graphic.color || [1, 1, 1, 1];
         gl.uniform4fv(gl.program.uColor, new Float32Array(color));
 
-        var halfWidth = entity.components.graphics.graphic.shapeData.width/2;
-        var halfHeight = entity.components.graphics.graphic.shapeData.height/2;
+        var halfWidth = (entity.components.graphics.graphic.shapeData.width * entity.components.graphics.graphic.scale) / 2;
+        var halfHeight = (entity.components.graphics.graphic.shapeData.height * entity.components.graphics.graphic.scale) / 2;
 
         var verts = [
             // Tri 1
