@@ -251,9 +251,29 @@ define([
 
         var enemy = this.createWall(scene, options);
 
-        enemy.components.graphics.graphic.color = [1, 0, 0, 1];
+        enemy.components.graphics.setSprite({
+            imagePath: 'image/zorp.png',
+            width: options.width,
+            height: options.height
+        });
 
         return enemy;
+    };
+
+    PlatformGameFactory.createGoal = function(scene, options) {
+        options = options || {};
+
+        options.tag = 'goal';
+
+        var goal = this.createWall(scene, options);
+
+        goal.components.graphics.setSprite({
+            imagePath: 'image/bullseye.png',
+            width: options.width,
+            height: options.height
+        });
+
+        return goal;
     };
 
     PlatformGameFactory.createPickup = function(scene, options) {
@@ -397,12 +417,11 @@ define([
         });
 
         // Create a goal
-        PlatformGameFactory.createWall(scene, {
+        PlatformGameFactory.createGoal(scene, {
             x: 500,
             y: -60,
             width: 30,
-            height: 30,
-            tag: 'goal'
+            height: 30
         });
 
         // TODO: Be able to set gravity!!!
@@ -465,12 +484,11 @@ define([
         });
 
         // Create a goal
-        PlatformGameFactory.createWall(scene, {
+        PlatformGameFactory.createGoal(scene, {
             x: 500,
             y: -60,
             width: 30,
-            height: 30,
-            tag: 'goal'
+            height: 30
         });
 
         // TODO: Be able to set gravity!!!
@@ -541,12 +559,11 @@ define([
         });
 
         // Create a goal
-        PlatformGameFactory.createWall(scene, {
+        PlatformGameFactory.createGoal(scene, {
             x: 500,
             y: -300,
             width: 30,
-            height: 30,
-            tag: 'goal'
+            height: 30
         });
 
         // Create an enemy
