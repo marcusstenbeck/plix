@@ -192,6 +192,7 @@ define([
         options = options || {};
 
         if(!entity.components.graphics) return;
+        if(entity.components.camera) return;
         
         // width and height will be used to scale coordinates
         var width = entity.scene.app.canvas.width;
