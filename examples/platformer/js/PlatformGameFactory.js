@@ -624,6 +624,12 @@ define([
 
                     ent.transform.position.x = 10*c - 85 + (app.width / 2);
                     ent.transform.position.y = 10*r - 100 + (app.height / 2);
+
+                    ent.components.graphics.setSprite({
+                        imagePath: 'image/gold-nest.png',
+                        width: 10,
+                        height: 10
+                    });
                 }
             }
         }
