@@ -85,7 +85,8 @@ define([
                 ent.transform.position.y = ent.camEnt.transform.position.y;
 
                 if(f === 1) return;
-                ent.components.graphics.graphic.scale = f;
+                ent.components.graphics.graphic.scale.x = f;
+                ent.components.graphics.graphic.scale.y = f;
             };
 
 
@@ -178,11 +179,24 @@ define([
             ent.components.physics.body.vel.x *= 0.8;
         };
 
+        var scaleJump = function(ent) {
+            var yVel = -ent.components.physics.body.vel.y;
+            var factor = 0.5;
+            
+            var squash = factor * yVel;
+            squash = squash > 1 ? 1 : squash;
+            squash = squash < -0.8 ? -0.8 : squash;
+
+            ent.components.graphics.graphic.scale.x = 1 - squash;
+            ent.components.graphics.graphic.scale.y = 1 + squash;
+        };
+
         // Configure FSM
         fsm.createState('grounded')
             .onEnter(function(ent) {
                 ent.script = function() {
                     sideMove(ent);
+                    scaleJump(ent);
 
                     if(ent.components.input.keys[options.keys.jump]) {
                         // Add jumping force
@@ -200,7 +214,10 @@ define([
 
         fsm.createState('jumping')
             .onEnter(function(ent) {
-                ent.script = sideMove;
+                ent.script = function() {
+                    sideMove(ent);
+                    scaleJump(ent);
+                };
             })
             .addTransition('ground', 'grounded');
         
