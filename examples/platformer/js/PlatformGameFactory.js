@@ -37,8 +37,82 @@ define([
 
     var PHYSICS_LAYER_ONE = 0b01;
     var PHYSICS_LAYER_TWO = 0b10;
+    var finished = false;
+
+    function finishLevel(scene) {
+        if(!finished) {
+            finished = true;
+
+            /**
+             *  stop controls
+             */
+
+
+            /**
+             *  display finish graphic
+             */
+
+            function theEase(duration, time) {
+                var t = time;
+                var b = 0;
+                var c = 1;
+                var d = duration;
+
+                var s=1.70158; var p=0; var a=c;
+                if (t===0) return b;  if ((t/=d)===1) return b+c;  if (!p) p=d*0.3;
+                if (a < Math.abs(c)) { a=c; s=p/4; }
+                else s = p/(2*Math.PI) * Math.asin (c/a);
+                return a*Math.pow(2,-10*t) * Math.sin( (t*d-s)*(2*Math.PI)/p ) + c + b;
+            }
+
+            var fg = PlatformGameFactory.createFinishEffect(scene);
+
+            for(var i = 0; i < scene.entities.length; i++) {
+                if(!!scene.entities[i].components.camera) {
+                    fg.camEnt = scene.entities[i];
+                    console.log('found it!');
+                    break;
+                }
+            }
+
+            fg.script = function(ent) {
+                if(!ent.startTime) ent.startTime = ent.scene.app.timeElapsed;
+
+                var dt = ent.scene.app.timeElapsed - ent.startTime;
+                var f = theEase(1000, dt);
+                
+                ent.transform.position.x = ent.camEnt.transform.position.x;
+                ent.transform.position.y = ent.camEnt.transform.position.y;
+
+                if(f === 1) return;
+                ent.components.graphics.graphic.scale = f;
+            };
+
+
+            /**
+             *  wait for keyboard input for next level
+             */
+            setTimeout(function() {
+                scene.app.nextLevel();
+                finished = false;
+            }, 2000);
+        }
+    }
 
     function PlatformGameFactory() {}
+
+    PlatformGameFactory.createFinishEffect = function(scene, options) {
+        var finishText = new Entity();
+        scene.attachEntity(finishText);
+
+        finishText.components.graphics.setSprite({
+            imagePath: 'image/finish.png',
+            width: 512,
+            height: 128
+        });
+
+        return finishText;
+    };
 
     PlatformGameFactory.createPlayer = function(scene, options) {
 
@@ -71,11 +145,13 @@ define([
             }
 
             if(otherBody.tag === 'goal') {
-                scene.app.nextLevel();
+                finishLevel(scene);
             }
 
             if(otherBody.tag === 'enemy') {
-                scene.app.playerDied();
+                if(!finished) {
+                    scene.app.playerDied();
+                }
             }
         });
         playerEntity.addComponent(pc);
@@ -131,6 +207,12 @@ define([
         // Start in the jumping state
         fsm.enterState('jumping');
 
+        playerEntity.components.graphics.setSprite({
+            imagePath: 'image/robot.png',
+            width: options.width,
+            height: options.height
+        });
+
         return playerEntity;
     };
 
@@ -152,6 +234,13 @@ define([
             });
         wall.addComponent(pc);
 
+        wall.components.graphics.setSprite({
+            imagePath: 'image/grass.png',
+            width: options.width,
+            height: options.height
+        });
+
+
         return wall;
     };
 
@@ -162,9 +251,29 @@ define([
 
         var enemy = this.createWall(scene, options);
 
-        enemy.components.graphics.graphic.color = [1, 0, 0, 1];
+        enemy.components.graphics.setSprite({
+            imagePath: 'image/zorp.png',
+            width: options.width,
+            height: options.height
+        });
 
         return enemy;
+    };
+
+    PlatformGameFactory.createGoal = function(scene, options) {
+        options = options || {};
+
+        options.tag = 'goal';
+
+        var goal = this.createWall(scene, options);
+
+        goal.components.graphics.setSprite({
+            imagePath: 'image/bullseye.png',
+            width: options.width,
+            height: options.height
+        });
+
+        return goal;
     };
 
     PlatformGameFactory.createPickup = function(scene, options) {
@@ -203,7 +312,11 @@ define([
             // var scale = 0.0001;
             pc.body.applyForce(options.f);
 
-            frag.components.graphics.graphic.color = [1, 1, 0, 1];
+            frag.components.graphics.setSprite({
+                imagePath: 'image/gold-nest.png',
+                width: options.width,
+                height: options.height
+            });
         }
 
         var pickup = this.createWall(scene, options);
@@ -230,6 +343,12 @@ define([
 
                 this.entity.destroy();
             }
+        });
+
+        pickup.components.graphics.setSprite({
+            imagePath: 'image/gold-nest.png',
+            width: options.width,
+            height: options.height
         });
                    
 
@@ -298,12 +417,11 @@ define([
         });
 
         // Create a goal
-        PlatformGameFactory.createWall(scene, {
+        PlatformGameFactory.createGoal(scene, {
             x: 500,
             y: -60,
             width: 30,
-            height: 30,
-            tag: 'goal'
+            height: 30
         });
 
         // TODO: Be able to set gravity!!!
@@ -366,12 +484,11 @@ define([
         });
 
         // Create a goal
-        PlatformGameFactory.createWall(scene, {
+        PlatformGameFactory.createGoal(scene, {
             x: 500,
             y: -60,
             width: 30,
-            height: 30,
-            tag: 'goal'
+            height: 30
         });
 
         // TODO: Be able to set gravity!!!
@@ -442,12 +559,11 @@ define([
         });
 
         // Create a goal
-        PlatformGameFactory.createWall(scene, {
+        PlatformGameFactory.createGoal(scene, {
             x: 500,
             y: -300,
             width: 30,
-            height: 30,
-            tag: 'goal'
+            height: 30
         });
 
         // Create an enemy
@@ -508,6 +624,12 @@ define([
 
                     ent.transform.position.x = 10*c - 85 + (app.width / 2);
                     ent.transform.position.y = 10*r - 100 + (app.height / 2);
+
+                    ent.components.graphics.setSprite({
+                        imagePath: 'image/gold-nest.png',
+                        width: 10,
+                        height: 10
+                    });
                 }
             }
         }
