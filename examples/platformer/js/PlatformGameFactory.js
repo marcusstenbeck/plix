@@ -226,7 +226,11 @@ define([
                         // Trigger jump event
                         fsm._fsm.triggerEvent('jump');
                     }
+
                 };
+
+                // Super ugly way of doing this...better though a bus or something
+                playerEntity.scene._groundedHappened = true;
             })
             .addTransition('jump', 'jumping');
 
@@ -693,10 +697,27 @@ define([
 
         camera.addComponent(cc);
 
+        camera.startTime = 0;
         camera.script = function(ent) {
             // YOLO: ent.components.camera.follow is totally ducktyped
             ent.transform.position.x += 0.1 * (ent.components.camera.follow.transform.position.x - ent.transform.position.x);// + 30 * Math.cos(scene.app.timeElapsed * 0.005);
             ent.transform.position.y += 0.1 * (ent.components.camera.follow.transform.position.y - ent.transform.position.y);// + 30 * Math.sin(scene.app.timeElapsed * 0.005);
+
+
+
+            var duration = 500;
+            
+            if(!!ent.scene._groundedHappened) {
+                ent.scene._groundedHappened = false;
+                ent.startTime = ent.scene.app.timeElapsed;
+            } else {
+                var dt = ent.scene.app.timeElapsed - ent.startTime;
+                var f = 1 - easeOutCubic(duration, dt);
+
+                ent.transform.position.x += 5 * f * Math.sin(ent.scene.app.timeElapsed);
+                ent.transform.position.y += 15 * f * Math.sin(0.3*ent.scene.app.timeElapsed);
+
+            }
         };
 
         return camera;
