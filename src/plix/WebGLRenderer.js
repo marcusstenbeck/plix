@@ -25,7 +25,7 @@ define([
         'varying vec2 v_tc_diffuse;',
 
         'void main(void) {',
-        '   vec4 color = texture2D(u_t_diffuse, v_tc_diffuse) + vec4(0.1, 0.1, 0.1, 0.0);',
+        '   vec4 color = texture2D(u_t_diffuse, v_tc_diffuse);',
         '   gl_FragColor = vec4(color);',
         '}'
     ].join('\n');
@@ -176,9 +176,9 @@ define([
                 offset: offset
             });
 
-            this.drawDebug(this.context, entity, {
-                offset: offset
-            });
+            // this.drawDebug(this.context, entity, {
+            //     offset: offset
+            // });
 
         }.bind(this));
     };

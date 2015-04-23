@@ -14,6 +14,7 @@ define([
         this.graphic = {
             type: 'shape',
             color: [0, 1, 0, 1],
+            scale: 1,
             shapeData: {
                 type: 'rectangle',
                 width: 32,
@@ -39,6 +40,7 @@ define([
             type: 'sprite',
             image: img,
             isLoaded: false,
+            scale: 1,
             shapeData: {
                 type: 'rectangle',
                 width: options.width,
