@@ -39,6 +39,37 @@ define([
     var PHYSICS_LAYER_TWO = 0b10;
     var finished = false;
 
+    function easeOutElastic(duration, time) {
+        var t = time;
+        var b = 0;
+        var c = 1;
+        var d = duration;
+
+        var s=1.70158; var p=0; var a=c;
+        if (t===0) return b;  if ((t/=d)===1) return b+c;  if (!p) p=d*0.3;
+        if (a < Math.abs(c)) { a=c; s=p/4; }
+        else s = p/(2*Math.PI) * Math.asin (c/a);
+        return a*Math.pow(2,-10*t) * Math.sin( (t*d-s)*(2*Math.PI)/p ) + c + b;
+    }
+
+    function easeOutExpo(duration, time) {
+        var t = time;
+        var b = 0;
+        var c = 1;
+        var d = duration;
+
+        return (t==d) ? b+c : c * (-Math.pow(2, -10 * t/d) + 1) + b;
+    }
+
+    function easeOutCubic(duration, time) {
+        var t = time;
+        var b = 0;
+        var c = 1;
+        var d = duration;
+
+        return (t>=d) ? b+c : c*((t=t/d-1)*t*t + 1) + b;
+    }
+
     function finishLevel(scene) {
         if(!finished) {
             finished = true;
@@ -51,19 +82,6 @@ define([
             /**
              *  display finish graphic
              */
-
-            function theEase(duration, time) {
-                var t = time;
-                var b = 0;
-                var c = 1;
-                var d = duration;
-
-                var s=1.70158; var p=0; var a=c;
-                if (t===0) return b;  if ((t/=d)===1) return b+c;  if (!p) p=d*0.3;
-                if (a < Math.abs(c)) { a=c; s=p/4; }
-                else s = p/(2*Math.PI) * Math.asin (c/a);
-                return a*Math.pow(2,-10*t) * Math.sin( (t*d-s)*(2*Math.PI)/p ) + c + b;
-            }
 
             var fg = PlatformGameFactory.createFinishEffect(scene);
 
@@ -79,13 +97,14 @@ define([
                 if(!ent.startTime) ent.startTime = ent.scene.app.timeElapsed;
 
                 var dt = ent.scene.app.timeElapsed - ent.startTime;
-                var f = theEase(1000, dt);
+                var f = easeOutElastic(1000, dt);
                 
                 ent.transform.position.x = ent.camEnt.transform.position.x;
                 ent.transform.position.y = ent.camEnt.transform.position.y;
 
                 if(f === 1) return;
-                ent.components.graphics.graphic.scale = f;
+                ent.components.graphics.graphic.scale.x = f;
+                ent.components.graphics.graphic.scale.y = f;
             };
 
 
@@ -178,11 +197,24 @@ define([
             ent.components.physics.body.vel.x *= 0.8;
         };
 
+        var scaleJump = function(ent) {
+            var yVel = -ent.components.physics.body.vel.y;
+            var factor = 0.5;
+            
+            var squash = factor * yVel;
+            squash = squash > 1 ? 1 : squash;
+            squash = squash < -0.8 ? -0.8 : squash;
+
+            ent.components.graphics.graphic.scale.x = 1 - squash;
+            ent.components.graphics.graphic.scale.y = 1 + squash;
+        };
+
         // Configure FSM
         fsm.createState('grounded')
             .onEnter(function(ent) {
                 ent.script = function() {
                     sideMove(ent);
+                    scaleJump(ent);
 
                     if(ent.components.input.keys[options.keys.jump]) {
                         // Add jumping force
@@ -194,13 +226,20 @@ define([
                         // Trigger jump event
                         fsm._fsm.triggerEvent('jump');
                     }
+
                 };
+
+                // Super ugly way of doing this...better though a bus or something
+                playerEntity.scene._groundedHappened = true;
             })
             .addTransition('jump', 'jumping');
 
         fsm.createState('jumping')
             .onEnter(function(ent) {
-                ent.script = sideMove;
+                ent.script = function() {
+                    sideMove(ent);
+                    scaleJump(ent);
+                };
             })
             .addTransition('ground', 'grounded');
         
@@ -658,10 +697,27 @@ define([
 
         camera.addComponent(cc);
 
+        camera.startTime = 0;
         camera.script = function(ent) {
             // YOLO: ent.components.camera.follow is totally ducktyped
             ent.transform.position.x += 0.1 * (ent.components.camera.follow.transform.position.x - ent.transform.position.x);// + 30 * Math.cos(scene.app.timeElapsed * 0.005);
             ent.transform.position.y += 0.1 * (ent.components.camera.follow.transform.position.y - ent.transform.position.y);// + 30 * Math.sin(scene.app.timeElapsed * 0.005);
+
+
+
+            var duration = 500;
+            
+            if(!!ent.scene._groundedHappened) {
+                ent.scene._groundedHappened = false;
+                ent.startTime = ent.scene.app.timeElapsed;
+            } else {
+                var dt = ent.scene.app.timeElapsed - ent.startTime;
+                var f = 1 - easeOutCubic(duration, dt);
+
+                ent.transform.position.x += 5 * f * Math.sin(ent.scene.app.timeElapsed);
+                ent.transform.position.y += 15 * f * Math.sin(0.3*ent.scene.app.timeElapsed);
+
+            }
         };
 
         return camera;
