@@ -207,6 +207,12 @@ define([
         // Start in the jumping state
         fsm.enterState('jumping');
 
+        playerEntity.components.graphics.setSprite({
+            imagePath: 'image/robot.png',
+            width: options.width,
+            height: options.height
+        });
+
         return playerEntity;
     };
 
@@ -227,6 +233,13 @@ define([
                 layer: PHYSICS_LAYER_ONE | PHYSICS_LAYER_TWO
             });
         wall.addComponent(pc);
+
+        wall.components.graphics.setSprite({
+            imagePath: 'image/grass.png',
+            width: options.width,
+            height: options.height
+        });
+
 
         return wall;
     };
@@ -279,7 +292,11 @@ define([
             // var scale = 0.0001;
             pc.body.applyForce(options.f);
 
-            frag.components.graphics.graphic.color = [1, 1, 0, 1];
+            frag.components.graphics.setSprite({
+                imagePath: 'image/gold-nest.png',
+                width: options.width,
+                height: options.height
+            });
         }
 
         var pickup = this.createWall(scene, options);
@@ -306,6 +323,12 @@ define([
 
                 this.entity.destroy();
             }
+        });
+
+        pickup.components.graphics.setSprite({
+            imagePath: 'image/gold-nest.png',
+            width: options.width,
+            height: options.height
         });
                    
 
