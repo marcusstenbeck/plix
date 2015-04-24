@@ -16,7 +16,7 @@ define([
     'plix/PhysicsComponent',
     'plix/GraphicsComponent',
     'plix/KeyboardInputComponent',
-    'plix/FSMComponent',
+    'plix/FsmComponent',
     'plix/CameraComponent',
     'plix/Util',
     'lib/vendor/physix/src/Body',
@@ -59,6 +59,25 @@ define([
         var d = duration;
 
         return (t==d) ? b+c : c * (-Math.pow(2, -10 * t/d) + 1) + b;
+    }
+
+    function easeOutBounce(duration, time) {
+        var t = time;
+        var b = 0;
+        var c = 1;
+        var d = duration;
+
+        if((t>=d)) {
+            return b+c;
+        } else if ((t/=d) < (1/2.75)) {
+            return c*(7.5625*t*t) + b;
+        } else if (t < (2/2.75)) {
+            return c*(7.5625*(t-=(1.5/2.75))*t + 0.75) + b;
+        } else if (t < (2.5/2.75)) {
+            return c*(7.5625*(t-=(2.25/2.75))*t + 0.9375) + b;
+        } else {
+            return c*(7.5625*(t-=(2.625/2.75))*t + 0.984375) + b;
+        }
     }
 
     function easeOutCubic(duration, time) {
@@ -169,7 +188,7 @@ define([
 
             if(otherBody.tag === 'enemy') {
                 if(!finished) {
-                    scene.app.playerDied();
+                    playerEntity.components.fsm._fsm.triggerEvent('die');
                 }
             }
         });
@@ -232,7 +251,8 @@ define([
                 // Super ugly way of doing this...better though a bus or something
                 playerEntity.scene._groundedHappened = true;
             })
-            .addTransition('jump', 'jumping');
+            .addTransition('jump', 'jumping')
+            .addTransition('die', 'dead');
 
         fsm.createState('jumping')
             .onEnter(function(ent) {
@@ -241,7 +261,49 @@ define([
                     scaleJump(ent);
                 };
             })
-            .addTransition('ground', 'grounded');
+            .addTransition('ground', 'grounded')
+            .addTransition('die', 'dead');
+
+        fsm.createState('dead')
+            .onEnter(function(ent) {
+                var dieTime = 2000;
+                
+                // TODO: It's dumb to need to do this.
+                // Camera and player is something that should be easily accessible.
+                // Having a function to find an entity in the scene could be a good idea though.
+                var camEnt;
+                for(var i = 0; i < scene.entities.length; i++) {
+                    if(!!scene.entities[i].components.camera) {
+                        camEnt = scene.entities[i];
+                        console.log('found it!');
+                        break;
+                    }
+                }
+
+                ent.script = function(ent) {
+                    scaleJump(ent);
+
+                    // Slow down to stop ...
+                    ent.components.physics.body.vel.x *= 0.8;
+
+                    if(!ent.startTime) ent.startTime = ent.scene.app.timeElapsed;
+
+                    var dt = ent.scene.app.timeElapsed - ent.startTime;
+
+                    var shakeScale = 10*(1-easeOutCubic(2*dieTime, dt));
+                    camEnt.transform.position.x = camEnt.transform.position.x + shakeScale*Math.cos(ent.scene.app.timeElapsed/50);
+                    camEnt.transform.position.y = camEnt.transform.position.y + shakeScale*Math.sin(ent.scene.app.timeElapsed/70);
+
+                    var f = 1 - easeOutBounce(0.5*dieTime, dt);
+                    if(f === 1) return;
+                    ent.components.graphics.graphic.scale.x = f;
+                    ent.components.graphics.graphic.scale.y = f;
+                };
+
+                setTimeout(function() {
+                    ent.scene.app.playerDied();
+                }, dieTime);
+            });
         
         // Start in the jumping state
         fsm.enterState('jumping');
