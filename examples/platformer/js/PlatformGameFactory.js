@@ -14,7 +14,8 @@ define([
     'plix/Entity',
     'plix/Scene',
     'plix/PhysicsComponent',
-    'plix/GraphicsComponent',
+    'plix/GraphicsSpriteComponent',
+    'plix/Graphics3DComponent',
     'plix/KeyboardInputComponent',
     'plix/FsmComponent',
     'plix/CameraComponent',
@@ -25,7 +26,8 @@ define([
     Entity,
     Scene,
     PhysicsComponent,
-    GraphicsComponent,
+    GraphicsSpriteComponent,
+    Graphics3DComponent,
     KeyboardInputComponent,
     FSMComponent,
     CameraComponent,
@@ -143,7 +145,7 @@ define([
         var finishText = new Entity();
         scene.attachEntity(finishText);
 
-        finishText.components.graphics.setSprite({
+        finishText.components.graphics = new GraphicsSpriteComponent({
             imagePath: 'image/finish.png',
             width: 512,
             height: 128
@@ -159,7 +161,6 @@ define([
 
         playerEntity.transform.position.x = options.x;
         playerEntity.transform.position.y = options.y;
-        
 
         // Add physics component
         var pc = new PhysicsComponent({
@@ -224,8 +225,15 @@ define([
             squash = squash > 1 ? 1 : squash;
             squash = squash < -0.8 ? -0.8 : squash;
 
-            ent.components.graphics.graphic.scale.x = 1 - squash;
-            ent.components.graphics.graphic.scale.y = 1 + squash;
+            if(!ent.components.graphics.graphic._scale) {
+                ent.components.graphics.graphic._scale = [
+                    ent.components.graphics.graphic.scale[0],
+                    ent.components.graphics.graphic.scale[1]
+                ];
+            }
+
+            ent.components.graphics.graphic.scale[0] = ent.components.graphics.graphic._scale[0] * (1 - squash);
+            ent.components.graphics.graphic.scale[1] = ent.components.graphics.graphic._scale[1] * (1 + squash);
         };
 
         // Configure FSM
@@ -308,11 +316,11 @@ define([
         // Start in the jumping state
         fsm.enterState('jumping');
 
-        playerEntity.components.graphics.setSprite({
+        var gfx3d = new Graphics3DComponent({
             imagePath: 'image/robot.png',
-            width: options.width,
-            height: options.height
+            scale: [options.width, options.height, 1]
         });
+        playerEntity.addComponent(gfx3d);
 
         return playerEntity;
     };
@@ -335,12 +343,17 @@ define([
             });
         wall.addComponent(pc);
 
-        wall.components.graphics.setSprite({
+        wall.components.graphics = new GraphicsSpriteComponent({
             imagePath: 'image/grass.png',
             width: options.width,
             height: options.height
         });
 
+        var gfx3d = new Graphics3DComponent({
+            imagePath: 'image/robot.png',
+            scale: [options.width, options.height, 1]
+        });
+        wall.addComponent(gfx3d);
 
         return wall;
     };
@@ -352,11 +365,17 @@ define([
 
         var enemy = this.createWall(scene, options);
 
-        enemy.components.graphics.setSprite({
+        enemy.components.graphics = new GraphicsSpriteComponent({
             imagePath: 'image/zorp.png',
             width: options.width,
             height: options.height
         });
+
+        var gfx3d = new Graphics3DComponent({
+            imagePath: 'image/robot.png',
+            scale: [options.width, options.height, 1]
+        });
+        enemy.addComponent(gfx3d);
 
         return enemy;
     };
@@ -368,11 +387,17 @@ define([
 
         var goal = this.createWall(scene, options);
 
-        goal.components.graphics.setSprite({
+        goal.components.graphics = new GraphicsSpriteComponent({
             imagePath: 'image/bullseye.png',
             width: options.width,
             height: options.height
         });
+
+        var gfx3d = new Graphics3DComponent({
+            imagePath: 'image/robot.png',
+            scale: [options.width, options.height, 1]
+        });
+        goal.addComponent(gfx3d);
 
         return goal;
     };
@@ -413,11 +438,17 @@ define([
             // var scale = 0.0001;
             pc.body.applyForce(options.f);
 
-            frag.components.graphics.setSprite({
+            frag.components.graphics = new GraphicsSpriteComponent({
                 imagePath: 'image/gold-nest.png',
                 width: options.width,
                 height: options.height
             });
+
+            var gfx3d = new Graphics3DComponent({
+                imagePath: 'image/robot.png',
+                scale: [options.width, options.height, 1]
+            });
+            frag.addComponent(gfx3d);
         }
 
         var pickup = this.createWall(scene, options);
@@ -446,11 +477,17 @@ define([
             }
         });
 
-        pickup.components.graphics.setSprite({
+        pickup.components.graphics = new GraphicsSpriteComponent({
             imagePath: 'image/gold-nest.png',
             width: options.width,
             height: options.height
         });
+
+        var gfx3d = new Graphics3DComponent({
+            imagePath: 'image/robot.png',
+            scale: [options.width, options.height, 1]
+        });
+        pickup.addComponent(gfx3d);
                    
 
         return pickup;
@@ -726,10 +763,9 @@ define([
                     ent.transform.position.x = 10*c - 85 + (app.width / 2);
                     ent.transform.position.y = 10*r - 100 + (app.height / 2);
 
-                    ent.components.graphics.setSprite({
-                        imagePath: 'image/gold-nest.png',
-                        width: 10,
-                        height: 10
+                    ent.components.graphics = new Graphics3DComponent({
+                        imagePath: 'image/robot.png',
+                        scale: [10, 10, 1]
                     });
                 }
             }
