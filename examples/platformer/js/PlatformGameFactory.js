@@ -760,12 +760,12 @@ define([
                     ent = new Entity();
                     scene.attachEntity(ent);
 
-                    ent.transform.position.x = 10*c - 85 + (app.width / 2);
-                    ent.transform.position.y = -10*r + 100 + (app.height / 2);
+                    ent.transform.position.x = 10*c - 85;
+                    ent.transform.position.y = -10*r + 100;
 
                     ent.components.graphics = new Graphics3DComponent({
                         imagePath: 'image/robot.png',
-                        scale: [10, 10, 1]
+                        scale: [10, 10, 10]
                     });
                 }
             }

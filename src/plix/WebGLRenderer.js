@@ -332,8 +332,8 @@ define([
         var offset = { x:0, y:0 };
 
         if(!!options.cameraComponent) {
-            offset.x = options.cameraComponent.entity.transform.position.x - (scene.app.canvas.width/2);
-            offset.y = options.cameraComponent.entity.transform.position.y - (scene.app.canvas.height/2);
+            offset.x = options.cameraComponent.entity.transform.position.x;
+            offset.y = options.cameraComponent.entity.transform.position.y;
         }
 
         /**
@@ -395,17 +395,15 @@ define([
 
         // View matrix
         var matV = glm.mat4.create();
-        glm.mat4.translate(matV, matV, glm.vec3.fromValues(entity.transform.position.x, entity.transform.position.y, 0));
         if(options.offset.x) {
             glm.mat4.translate(matV, matV, glm.vec3.fromValues(-options.offset.x, -options.offset.y, 0));
         }
+        glm.mat4.translate(matV, matV, glm.vec3.fromValues(0, 0, -400));
         gl.uniformMatrix4fv(this.shaders.mesh.u_V, false, new Float32Array(matV));
 
-        // Projection matrix (ish)
+        // Perspective
         var matP = glm.mat4.create();
-        glm.mat4.translate(matP, matP, glm.vec3.fromValues(-1, 1, 0));
-        glm.mat4.scale(matP, matP, glm.vec3.fromValues(2/entity.scene.app.canvas.width, -2/entity.scene.app.canvas.height, 2/entity.scene.app.canvas.width));
-        glm.mat4.translate(matP, matP, glm.vec3.fromValues(-1,-1,-1));
+        glm.mat4.perspective(matP, Math.PI/3, entity.scene.app.canvas.width/entity.scene.app.canvas.height, 0.1, 100000);
         gl.uniformMatrix4fv(this.shaders.mesh.u_P, false, new Float32Array(matP));
 
         // Upload to vertex buffer
