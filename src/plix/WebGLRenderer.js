@@ -1,5 +1,7 @@
 define([
+    'lib/vendor/gl-matrix/dist/gl-matrix'
 ], function(
+    glm
 ) {
     'use strict';
 
@@ -34,51 +36,85 @@ define([
     //////// MESH SHADER   /////////
 
     var vsMesh = [
-        'attribute vec3 vPos;',
+        'uniform float u_time;',
 
+        'uniform mat4 u_M;',
+        'uniform mat3 u_Mnormal;',
+        'uniform mat4 u_V;',
+        'uniform mat4 u_P;',
+
+        'attribute vec3 a_pos;',
+        'attribute vec3 a_n;',
         'attribute vec2 a_tc_diffuse;',
         'attribute vec3 a_color;',
+        
+        'varying vec3 v_pos;',
+        'varying vec3 v_n;',
         'varying vec2 v_tc_diffuse;',
         'varying vec3 v_color;',
 
-        'uniform float uTime;',
-        'uniform vec3 uScale;',
-        'uniform vec2 uOffset;',
-        'uniform vec2 uDisplaySize;',
-
-// (xPos / dW) * 2 - 1,
-// ((dH - yPos) / dH) * 2 - 1
 
         'void main(void) {',
-        '   vec3 position = vec3(uOffset, 0.0) + vec3(vPos * uScale);',
-        '   position.x = (position.x / uDisplaySize.x) * 2.0 - 1.0;',
-        '   position.y = ((uDisplaySize.y - position.y) / uDisplaySize.y) * 2.0 - 1.0;',
-
-        // TODO: Remove
-        '   position.x = position.x + 2.0*sin(3.1419*(2.0*uTime*vPos.x/1000.0))/uDisplaySize.x;',
-
-        '   gl_Position = vec4(position, 1.0);',
-
+            // Export the varyings
         '   v_tc_diffuse = a_tc_diffuse;',
         '   v_color = a_color;',
+        '   v_n = mat3(u_V) * u_Mnormal * a_n;',
+
+        '   vec4 position = u_P * u_V * u_M * vec4(a_pos, 1.0);',
+        '   vec3 v_pos = vec3(u_V * u_M * vec4(a_pos, 1.0)).xyz;',
+
+        '   gl_Position = vec4(position);',
         '}'
     ].join('\n');
 
 
     var fsMesh = [
+        '#define PI       3.1415926536',
+        
         'precision highp float;',
+        
 
-        'uniform vec4 uColor;',
-        'uniform float uTime;',
+        'uniform vec4 u_color;',
+        'uniform float u_time;',
 
+        'varying vec3 v_pos;',
+        'varying vec3 v_n;',
         'varying vec2 v_tc_diffuse;',
         'varying vec3 v_color;',
 
+        'vec3 calculateLight(vec3 vPos, vec3 lPos, vec3 diffuse, vec3 specular) {',
+
+        '   vec3 n = normalize(v_n);',
+        '   vec3 v = normalize(-vPos.xyz);',
+        '   vec3 Lout = vec3(0.0);',
+        
+        '   float Li = 3.0;',  // Intensity
+
+        '   vec3 l = normalize(vPos - lPos);',  // Light-to-Point
+        '   vec3 h = normalize(v + l);',  // Half vector
+        '   float cosTh = max(0.0, dot(n, h));',  // specular shenagiggiian, NdotHV
+        '   float cosTi = max(0.0, dot(n, l));',  // cos(theta_incident), NdotL
+        
+        // Attenuation
+        '   float dist = length(vPos - lPos);',
+        '   float constantAttenuation = 1.0;',
+        '   float linearAttenuation = 0.01 ;',
+        '   float quadraticAttenuation = 0.0001;',
+        '   float attenuation = 1.0 / (constantAttenuation + (linearAttenuation * dist) + (quadraticAttenuation * dist * dist));',
+        
+        '   float m = 30.0;',  // Smoothness from Real-Time Rendering
+        '   vec3 Kd = diffuse / PI;',
+        '   vec3 Ks = specular * ((m + 8.0) / (8.0 * PI));', // Specular not affected by attenuation
+
+        '   Lout += vec3( Kd + (Ks * pow(cosTh, m)) ) * Li * cosTi * attenuation;',
+
+        '   return Lout;',
+        '}',
+
         'void main(void) {',
-        '   float red = v_color.r * (1.0 + 0.5*sin(2.0*3.1419*uTime/1000.0));',
-        '   float green = v_color.g * (1.0 + 0.5*sin(0.5*3.1419 + 2.3*3.1419*uTime/1000.0));',
-        '   float blue = v_color.b * (1.0 + 0.5*sin(1.5*3.1419 + 2.7*3.1419*uTime/1000.0));',
-        '   gl_FragColor = vec4(red, green, blue, 1.0);',
+        '   float rate = 0.13 * (2.0*PI*u_time/1000.0);',
+        '   vec3 light_pos = vec3( cos(rate), sin(rate), 1.0);',
+        '   gl_FragColor = vec4(calculateLight(v_pos, light_pos, v_color, vec3(0.05)), 1.0);',
         '}'
     ].join('\n');
 
@@ -198,19 +234,32 @@ define([
 
         gl.enable(gl.DEPTH_TEST);
 
-        // (vec3(vPos) + vec2(a_tc_diffuse) + vec3(a_color)) * sizeof(gl.FLOAT) = (3+2+3)*4 = 8*4 => 32
-        var stride = 32;
+        // (vec3(a_pos) + vec3(a_n) + vec2(a_tc_diffuse) + vec3(a_color)) * sizeof(gl.FLOAT)
+        // = (3+3+2+3)*4 = 11*4 => 44
+        var stride = 44;
 
-        // Setup shader attribute: vPos
-        this.shaders.mesh.vPos = gl.getAttribLocation(this.shaders.mesh, 'vPos');
-        gl.enableVertexAttribArray(this.shaders.mesh.vPos);
+        // Setup shader attribute: a_pos
+        this.shaders.mesh.a_pos = gl.getAttribLocation(this.shaders.mesh, 'a_pos');
+        gl.enableVertexAttribArray(this.shaders.mesh.a_pos);
         gl.vertexAttribPointer(
-                this.shaders.mesh.vPos,
+                this.shaders.mesh.a_pos,
                 3,
                 gl.FLOAT,
                 false,
                 stride,
                 0   // first => 0
+            );
+
+        // Setup shader attribute: a_n
+        this.shaders.mesh.a_n = gl.getAttribLocation(this.shaders.mesh, 'a_n');
+        gl.enableVertexAttribArray(this.shaders.mesh.a_n);
+        gl.vertexAttribPointer(
+                this.shaders.mesh.a_n,
+                3,
+                gl.FLOAT,
+                false,
+                stride,
+                12   // sizeof(gl.FLOAT)*3 = 4*3 => 12
             );
 
         // Setup shader attribute: a_tc_diffuse
@@ -222,7 +271,7 @@ define([
                 gl.FLOAT,
                 false,
                 stride,
-                12   // sizeof(gl.FLOAT)*3 = 4*3 => 12
+                24   // sizeof(gl.FLOAT)*(3+3) = 4*6 => 24
             );
 
         // Setup shader attribute: a_color
@@ -234,23 +283,26 @@ define([
                 gl.FLOAT,
                 false,
                 stride,
-                20   // sizeof(gl.FLOAT)*(3+2) = 4*5 => 20
+                32   // sizeof(gl.FLOAT)*(3+3+2) = 4*8 => 32
             );
 
         // Setup shader uniform: time
-        this.shaders.mesh.uTime = gl.getUniformLocation(this.shaders.mesh, 'uTime');
+        this.shaders.mesh.u_time = gl.getUniformLocation(this.shaders.mesh, 'u_time');
 
         // Setup shader uniform: color
-        this.shaders.mesh.uColor = gl.getUniformLocation(this.shaders.mesh, 'uColor');
+        this.shaders.mesh.u_color = gl.getUniformLocation(this.shaders.mesh, 'u_color');
 
-        // Setup shader uniform: offset
-        this.shaders.mesh.uOffset = gl.getUniformLocation(this.shaders.mesh, 'uOffset');
+        // Setup shader uniform: u_M
+        this.shaders.mesh.u_M = gl.getUniformLocation(this.shaders.mesh, 'u_M');
 
-        // Setup shader uniform: displaySize
-        this.shaders.mesh.uDisplaySize = gl.getUniformLocation(this.shaders.mesh, 'uDisplaySize');
+        // Setup shader uniform: u_Mnormal
+        this.shaders.mesh.u_Mnormal = gl.getUniformLocation(this.shaders.mesh, 'u_Mnormal');
 
-        // Setup shader uniform: scale
-        this.shaders.mesh.uScale = gl.getUniformLocation(this.shaders.mesh, 'uScale');
+        // Setup shader uniform: u_V
+        this.shaders.mesh.u_V = gl.getUniformLocation(this.shaders.mesh, 'u_V');
+
+        // Setup shader uniform: u_P
+        this.shaders.mesh.u_P = gl.getUniformLocation(this.shaders.mesh, 'u_P');
     };
 
     WebGLRenderer.prototype.render = function(scene) {
@@ -280,8 +332,8 @@ define([
         var offset = { x:0, y:0 };
 
         if(!!options.cameraComponent) {
-            offset.x = options.cameraComponent.entity.transform.position.x - (scene.app.width / 2);
-            offset.y = options.cameraComponent.entity.transform.position.y - (scene.app.height / 2);
+            offset.x = options.cameraComponent.entity.transform.position.x - (scene.app.canvas.width/2);
+            offset.y = options.cameraComponent.entity.transform.position.y - (scene.app.canvas.height/2);
         }
 
         /**
@@ -319,27 +371,42 @@ define([
         
         this.bindMeshProgram(gl);
 
-        // Upload time
-        gl.uniform1f(this.shaders.mesh.uTime, entity.scene.app.timeElapsed);
+        // Time
+        gl.uniform1f(this.shaders.mesh.u_time, entity.scene.app.timeElapsed);
 
+        // Constant color
         var color = entity.components.graphics.graphic.color || [1, 1, 1, 1];
         gl.uniform4fv(this.shaders.mesh.uColor, new Float32Array(color));
 
+        // Model matrix
         var scale = entity.components.graphics.graphic.scale;
-        gl.uniform3fv(this.shaders.mesh.uScale, new Float32Array(scale));
+        var matM = glm.mat4.create();
+        glm.mat4.scale(matM, matM, glm.vec3.fromValues(scale[0], scale[1], scale[2]));
+        glm.mat4.rotateY(matM, matM, -2*3.1419*(entity.scene.app.timeElapsed/4000));
+        gl.uniformMatrix4fv(this.shaders.mesh.u_M, false, new Float32Array(matM));
 
-        var offset = [entity.transform.position.x, entity.transform.position.y];
+        // Normal matrix
+        var matMn = glm.mat3.create();
+        glm.mat3.fromMat4(matMn, matM);
+        glm.mat3.invert(matMn, matMn);
+        glm.mat3.transpose(matMn, matMn);
+        gl.uniformMatrix3fv(this.shaders.mesh.u_Mnormal, false, new Float32Array(matMn));
+
+
+        // View matrix
+        var matV = glm.mat4.create();
+        glm.mat4.translate(matV, matV, glm.vec3.fromValues(entity.transform.position.x, entity.transform.position.y, 0));
         if(options.offset.x) {
-            offset[0] -= options.offset.x;
-            offset[1] -= options.offset.y;
+            glm.mat4.translate(matV, matV, glm.vec3.fromValues(-options.offset.x, -options.offset.y, 0));
         }
-        gl.uniform2fv(this.shaders.mesh.uOffset, new Float32Array(offset));
+        gl.uniformMatrix4fv(this.shaders.mesh.u_V, false, new Float32Array(matV));
 
-        var displaySize = [
-            entity.scene.app.canvas.width,
-            entity.scene.app.canvas.height
-        ];
-        gl.uniform2fv(this.shaders.mesh.uDisplaySize, new Float32Array(displaySize));
+        // Projection matrix (ish)
+        var matP = glm.mat4.create();
+        glm.mat4.translate(matP, matP, glm.vec3.fromValues(-1, 1, 0));
+        glm.mat4.scale(matP, matP, glm.vec3.fromValues(2/entity.scene.app.canvas.width, -2/entity.scene.app.canvas.height, 2/entity.scene.app.canvas.width));
+        glm.mat4.translate(matP, matP, glm.vec3.fromValues(-1,-1,-1));
+        gl.uniformMatrix4fv(this.shaders.mesh.u_P, false, new Float32Array(matP));
 
         // Upload to vertex buffer
         gl.bindBuffer(gl.ARRAY_BUFFER, this.vBuffer);

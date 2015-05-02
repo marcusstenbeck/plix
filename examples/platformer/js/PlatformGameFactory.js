@@ -318,7 +318,7 @@ define([
 
         var gfx3d = new Graphics3DComponent({
             imagePath: 'image/robot.png',
-            scale: [options.width, options.height, 1]
+            scale: [options.width, options.height, options.width]
         });
         playerEntity.addComponent(gfx3d);
 
@@ -351,7 +351,7 @@ define([
 
         var gfx3d = new Graphics3DComponent({
             imagePath: 'image/robot.png',
-            scale: [options.width, options.height, 1]
+            scale: [options.width, options.height, options.width]
         });
         wall.addComponent(gfx3d);
 
@@ -373,7 +373,7 @@ define([
 
         var gfx3d = new Graphics3DComponent({
             imagePath: 'image/robot.png',
-            scale: [options.width, options.height, 1]
+            scale: [options.width, options.height, options.width]
         });
         enemy.addComponent(gfx3d);
 
@@ -395,7 +395,7 @@ define([
 
         var gfx3d = new Graphics3DComponent({
             imagePath: 'image/robot.png',
-            scale: [options.width, options.height, 1]
+            scale: [options.width, options.height, options.width]
         });
         goal.addComponent(gfx3d);
 
@@ -446,7 +446,7 @@ define([
 
             var gfx3d = new Graphics3DComponent({
                 imagePath: 'image/robot.png',
-                scale: [options.width, options.height, 1]
+                scale: [options.width, options.height, options.width]
             });
             frag.addComponent(gfx3d);
         }
@@ -485,7 +485,7 @@ define([
 
         var gfx3d = new Graphics3DComponent({
             imagePath: 'image/robot.png',
-            scale: [options.width, options.height, 1]
+            scale: [options.width, options.height, options.width]
         });
         pickup.addComponent(gfx3d);
                    
