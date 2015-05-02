@@ -36,12 +36,15 @@ define([
     //////// MESH SHADER   /////////
 
     var vsMesh = [
+        '#define PI       3.1415926536',
+
         'uniform float u_time;',
 
         'uniform mat4 u_M;',
         'uniform mat3 u_Mnormal;',
         'uniform mat4 u_V;',
         'uniform mat4 u_P;',
+        'uniform vec3 u_lPos;',
 
         'attribute vec3 a_pos;',
         'attribute vec3 a_n;',
@@ -52,6 +55,7 @@ define([
         'varying vec3 v_n;',
         'varying vec2 v_tc_diffuse;',
         'varying vec3 v_color;',
+        'varying vec3 v_lPos;',
 
 
         'void main(void) {',
@@ -61,7 +65,9 @@ define([
         '   v_n = mat3(u_V) * u_Mnormal * a_n;',
 
         '   vec4 position = u_P * u_V * u_M * vec4(a_pos, 1.0);',
-        '   vec3 v_pos = vec3(u_V * u_M * vec4(a_pos, 1.0)).xyz;',
+        
+        '   v_pos = vec3(u_V * u_M * vec4(a_pos, 1.0)).xyz;',
+        '   v_lPos = vec3(u_V * vec4(u_lPos, 1.0)).xyz;',
 
         '   gl_Position = vec4(position);',
         '}'
@@ -73,30 +79,31 @@ define([
         
         'precision highp float;',
         
-
         'uniform vec4 u_color;',
         'uniform float u_time;',
+        'uniform float u_lIntensity;',
 
         'varying vec3 v_pos;',
         'varying vec3 v_n;',
         'varying vec2 v_tc_diffuse;',
         'varying vec3 v_color;',
+        'varying vec3 v_lPos;',
 
-        'vec3 calculateLight(vec3 vPos, vec3 lPos, vec3 diffuse, vec3 specular) {',
+        'vec3 calculateLight(vec3 diffuse, vec3 specular) {',
 
         '   vec3 n = normalize(v_n);',
-        '   vec3 v = normalize(-vPos.xyz);',
+        '   vec3 v = normalize(-v_pos);',
         '   vec3 Lout = vec3(0.0);',
         
-        '   float Li = 3.0;',  // Intensity
+        '   float Li = u_lIntensity;',  // Intensity
 
-        '   vec3 l = normalize(vPos - lPos);',  // Light-to-Point
+        '   vec3 l = normalize(v_lPos - v_pos);',  // Point-to-light
         '   vec3 h = normalize(v + l);',  // Half vector
         '   float cosTh = max(0.0, dot(n, h));',  // specular shenagiggiian, NdotHV
         '   float cosTi = max(0.0, dot(n, l));',  // cos(theta_incident), NdotL
         
         // Attenuation
-        '   float dist = length(vPos - lPos);',
+        '   float dist = length(v_lPos - v_pos);',
         '   float constantAttenuation = 1.0;',
         '   float linearAttenuation = 0.01 ;',
         '   float quadraticAttenuation = 0.0001;',
@@ -112,9 +119,7 @@ define([
         '}',
 
         'void main(void) {',
-        '   float rate = 0.13 * (2.0*PI*u_time/1000.0);',
-        '   vec3 light_pos = vec3( cos(rate), sin(rate), 1.0);',
-        '   gl_FragColor = vec4(calculateLight(v_pos, light_pos, v_color, vec3(0.05)), 1.0);',
+        '   gl_FragColor = vec4(calculateLight(v_color, vec3(0.05)), 1.0);',
         '}'
     ].join('\n');
 
@@ -303,6 +308,12 @@ define([
 
         // Setup shader uniform: u_P
         this.shaders.mesh.u_P = gl.getUniformLocation(this.shaders.mesh, 'u_P');
+
+        // Setup shader uniform: u_lPos
+        this.shaders.mesh.u_lPos = gl.getUniformLocation(this.shaders.mesh, 'u_lPos');
+
+        // Setup shader uniform: u_lIntensity
+        this.shaders.mesh.u_lIntensity = gl.getUniformLocation(this.shaders.mesh, 'u_lIntensity');
     };
 
     WebGLRenderer.prototype.render = function(scene) {
@@ -378,11 +389,17 @@ define([
         var color = entity.components.graphics.graphic.color || [1, 1, 1, 1];
         gl.uniform4fv(this.shaders.mesh.uColor, new Float32Array(color));
 
+        // Light stuff
+        var lightPosition = [options.offset.x, options.offset.y + 100, 150];
+        gl.uniform3fv(this.shaders.mesh.u_lPos, new Float32Array(lightPosition));
+        var lightIntensity = [20];
+        gl.uniform1fv(this.shaders.mesh.u_lIntensity, new Float32Array(lightIntensity));
+
         // Model matrix
         var scale = entity.components.graphics.graphic.scale;
         var matM = glm.mat4.create();
+        glm.mat4.translate(matM, matM, glm.vec3.fromValues(entity.transform.position.x, entity.transform.position.y, 0));
         glm.mat4.scale(matM, matM, glm.vec3.fromValues(scale[0], scale[1], scale[2]));
-        glm.mat4.rotateY(matM, matM, -2*3.1419*(entity.scene.app.timeElapsed/4000));
         gl.uniformMatrix4fv(this.shaders.mesh.u_M, false, new Float32Array(matM));
 
         // Normal matrix
