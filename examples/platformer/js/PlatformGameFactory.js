@@ -175,7 +175,7 @@ define([
             if(
                 Math.abs(collisionVector.x) < 
                 Math.abs(collisionVector.y) && 
-                collisionVector.y < 0) {
+                collisionVector.y > 0) {
                 // Landed, so don't bounce!
                 this.body.vel.y = 0;
 
@@ -247,7 +247,7 @@ define([
                         // Add jumping force
                         ent.components.physics.body.applyForce({
                             x: 0,
-                            y: -0.1
+                            y: 0.1
                         });
 
                         // Trigger jump event
@@ -518,7 +518,7 @@ define([
         // Create player
         var player = PlatformGameFactory.createPlayer(scene, {
             x: -200,
-            y: -80,
+            y: 80,
             width: 50,
             height: 70,
             keys: {
@@ -536,7 +536,7 @@ define([
         // Create a floor
         PlatformGameFactory.createWall(scene, {
             x: 0,
-            y: -20,
+            y: 20,
             width: 2400,
             height: 20
         });
@@ -544,20 +544,20 @@ define([
         // Create the little floor obstacle
         PlatformGameFactory.createWall(scene, {
             x: 30,
-            y: -45,
+            y: 45,
             width: 30,
             height: 30
         });
 
         PlatformGameFactory.createPickup(scene, {
             x: 200,
-            y: -180
+            y: 180
         });
 
         // Create a goal
         PlatformGameFactory.createGoal(scene, {
             x: 500,
-            y: -60,
+            y: 60,
             width: 30,
             height: 30
         });
@@ -565,7 +565,7 @@ define([
         // TODO: Be able to set gravity!!!
         if(scene._physicsWorld) {
             console.log('set gravity');
-            scene._physicsWorld.gravity = new Vec2(0, 0.005);
+            scene._physicsWorld.gravity = new Vec2(0, -0.005);
         }
 
 
@@ -582,7 +582,7 @@ define([
         // Create player
         var player = PlatformGameFactory.createPlayer(scene, {
             x: -200,
-            y: -80,
+            y: 80,
             width: 50,
             height: 70,
             keys: {
@@ -600,7 +600,7 @@ define([
         // Create a floor
         PlatformGameFactory.createWall(scene, {
             x: 0,
-            y: -20,
+            y: 20,
             width: 2400,
             height: 20
         });
@@ -608,7 +608,7 @@ define([
         // Create the little floor obstacle
         PlatformGameFactory.createWall(scene, {
             x: 30,
-            y: -45,
+            y: 45,
             width: 30,
             height: 30
         });
@@ -616,7 +616,7 @@ define([
         // Create the little floor obstacle
         PlatformGameFactory.createWall(scene, {
             x: 30,
-            y: -85,
+            y: 85,
             width: 30,
             height: 30
         });
@@ -624,7 +624,7 @@ define([
         // Create a goal
         PlatformGameFactory.createGoal(scene, {
             x: 500,
-            y: -60,
+            y: 60,
             width: 30,
             height: 30
         });
@@ -632,7 +632,7 @@ define([
         // TODO: Be able to set gravity!!!
         if(scene._physicsWorld) {
             console.log('set gravity');
-            scene._physicsWorld.gravity = new Vec2(0, 0.005);
+            scene._physicsWorld.gravity = new Vec2(0, -0.005);
         }
 
 
@@ -649,7 +649,7 @@ define([
         // Create player
         var player = PlatformGameFactory.createPlayer(scene, {
             x: -200,
-            y: -80,
+            y: 80,
             width: 50,
             height: 70,
             keys: {
@@ -667,7 +667,7 @@ define([
         // Create a floor
         PlatformGameFactory.createWall(scene, {
             x: 0,
-            y: -20,
+            y: 20,
             width: 2400,
             height: 20
         });
@@ -675,7 +675,7 @@ define([
         // Create the little floor obstacle
         PlatformGameFactory.createWall(scene, {
             x: 30,
-            y: -45,
+            y: 45,
             width: 30,
             height: 30
         });
@@ -683,7 +683,7 @@ define([
         // Create the little floor obstacle
         PlatformGameFactory.createWall(scene, {
             x: 200,
-            y: -120,
+            y: 120,
             width: 30,
             height: 30
         });
@@ -691,7 +691,7 @@ define([
         // Create the little floor obstacle
         PlatformGameFactory.createWall(scene, {
             x: 350,
-            y: -180,
+            y: 180,
             width: 30,
             height: 30
         });
@@ -699,7 +699,7 @@ define([
         // Create a goal
         PlatformGameFactory.createGoal(scene, {
             x: 500,
-            y: -300,
+            y: 300,
             width: 30,
             height: 30
         });
@@ -707,20 +707,20 @@ define([
         // Create an enemy
         PlatformGameFactory.createEnemy(scene, {
             x: 500,
-            y: -60,
+            y: 60,
             width: 600,
             height: 30
         });
 
         PlatformGameFactory.createPickup(scene, {
             x: 390,
-            y: -250
+            y: 250
         });
 
         // TODO: Be able to set gravity!!!
         if(scene._physicsWorld) {
             console.log('set gravity');
-            scene._physicsWorld.gravity = new Vec2(0, 0.005);
+            scene._physicsWorld.gravity = new Vec2(0, -0.005);
         }
 
 
@@ -761,7 +761,7 @@ define([
                     scene.attachEntity(ent);
 
                     ent.transform.position.x = 10*c - 85 + (app.width / 2);
-                    ent.transform.position.y = 10*r - 100 + (app.height / 2);
+                    ent.transform.position.y = -10*r + 100 + (app.height / 2);
 
                     ent.components.graphics = new Graphics3DComponent({
                         imagePath: 'image/robot.png',
