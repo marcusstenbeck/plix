@@ -19,6 +19,7 @@
   ],
   "dependencies": {
     "fsm": "marcusstenbeck/fsm",
-    "physix": "marcusstenbeck/physix"
+    "physix": "marcusstenbeck/physix",
+    "gl-matrix": "~2.2.1"
   }
 }
