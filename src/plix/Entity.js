@@ -1,7 +1,9 @@
 define([
-    'plix/GraphicsComponent'
+    'plix/GraphicsComponent',
+    'lib/vendor/gl-matrix/dist/gl-matrix'
 ], function(
-    GraphicsComponent
+    GraphicsComponent,
+    glm
 ) {
     'use strict';
 
@@ -12,7 +14,8 @@ define([
 
         this.transform = {
             position: { x:0, y:0 },
-            rotation: 0
+            rotation: 0,
+            _matrix: glm.mat4.create()
         };
 
         this.components.graphics = new GraphicsComponent({ entity: this });
