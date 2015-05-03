@@ -318,7 +318,8 @@ define([
 
         var gfx3d = new Graphics3DComponent({
             imagePath: 'image/robot.png',
-            scale: [options.width, options.height, options.width]
+            scale: [options.width, options.height, options.width],
+            color: [0,1,0,1]
         });
         playerEntity.addComponent(gfx3d);
 
@@ -373,7 +374,8 @@ define([
 
         var gfx3d = new Graphics3DComponent({
             imagePath: 'image/robot.png',
-            scale: [options.width, options.height, options.width]
+            scale: [options.width, options.height, options.width],
+            color: [1,0,0,1]
         });
         enemy.addComponent(gfx3d);
 
@@ -393,9 +395,14 @@ define([
             height: options.height
         });
 
+        goal.script = function(ent) {
+            ent.components.graphics.graphic.color[1] = 0.7 + 0.3*Math.cos(2*Math.PI*ent.scene.app.timeElapsed/1000);
+        };
+
         var gfx3d = new Graphics3DComponent({
             imagePath: 'image/robot.png',
-            scale: [options.width, options.height, options.width]
+            scale: [options.width, options.height, options.width],
+            color: [0,1,0,1]
         });
         goal.addComponent(gfx3d);
 
@@ -444,9 +451,15 @@ define([
                 height: options.height
             });
 
+            frag.script = function(ent) {
+                ent.components.graphics.graphic.color[0] = 0.7 + 0.3*Math.cos(3*2*Math.PI*ent.scene.app.timeElapsed/1000);
+                ent.components.graphics.graphic.color[1] = 0.7 + 0.3*Math.cos(3*2*Math.PI*ent.scene.app.timeElapsed/1000);
+            };
+
             var gfx3d = new Graphics3DComponent({
                 imagePath: 'image/robot.png',
-                scale: [options.width, options.height, options.width]
+                scale: [options.width, options.height, options.width],
+                color: [1,1,0,1]
             });
             frag.addComponent(gfx3d);
         }
@@ -485,9 +498,15 @@ define([
 
         var gfx3d = new Graphics3DComponent({
             imagePath: 'image/robot.png',
-            scale: [options.width, options.height, options.width]
+            scale: [options.width, options.height, options.width],
+            color: [1,1,0,1]
         });
         pickup.addComponent(gfx3d);
+
+        pickup.script = function(ent) {
+            ent.components.graphics.graphic.color[0] = 0.7 + 0.3*Math.cos(2*Math.PI*ent.scene.app.timeElapsed/1000);
+            ent.components.graphics.graphic.color[1] = 0.7 + 0.3*Math.cos(2*Math.PI*ent.scene.app.timeElapsed/1000);
+        };
                    
 
         return pickup;
@@ -763,9 +782,11 @@ define([
                     ent.transform.position.x = 10*c - 85;
                     ent.transform.position.y = -10*r + 100;
 
+                    var rand = Math.random();
                     ent.components.graphics = new Graphics3DComponent({
                         imagePath: 'image/robot.png',
-                        scale: [10, 10, 10]
+                        scale: [10, 10, 10],
+                        color: [rand, 1-rand, Math.random(), 1]
                     });
                 }
             }

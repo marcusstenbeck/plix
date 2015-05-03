@@ -119,7 +119,7 @@ define([
         '}',
 
         'void main(void) {',
-        '   gl_FragColor = vec4(calculateLight(v_color, vec3(0.05)), 1.0);',
+        '   gl_FragColor = vec4(calculateLight(u_color.rgb, vec3(0.01)), 1.0);',
         '}'
     ].join('\n');
 
@@ -387,7 +387,7 @@ define([
 
         // Constant color
         var color = entity.components.graphics.graphic.color || [1, 1, 1, 1];
-        gl.uniform4fv(this.shaders.mesh.uColor, new Float32Array(color));
+        gl.uniform4fv(this.shaders.mesh.u_color, new Float32Array(color));
 
         // Light stuff
         var lightPosition = [options.offset.x, options.offset.y + 100, 150];
