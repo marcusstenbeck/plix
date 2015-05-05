@@ -113,7 +113,9 @@ define([
         '   vec3 Kd = diffuse / PI;',
         '   vec3 Ks = specular * ((m + 8.0) / (8.0 * PI));', // Specular not affected by attenuation
 
-        '   Lout += vec3( Kd + (Ks * pow(cosTh, m)) ) * Li * cosTi * attenuation;',
+        '   vec3 Ka = mix(vec3(0.1), vec3(0.0), cosTh * 0.5 + 0.5);',
+
+        '   Lout += vec3( Kd + (Ks * pow(cosTh, m)) ) * Li * cosTi * attenuation + Ka;',
 
         '   return Lout;',
         '}',
