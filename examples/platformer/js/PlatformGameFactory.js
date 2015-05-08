@@ -88,7 +88,7 @@ define([
         var c = 1;
         var d = duration;
 
-        return (t>=d) ? b+c : c*((t=t/d-1)*t*t + 1) + b;
+        return (t<=0) ? b : (t>=d) ? b+c : c*((t=t/d-1)*t*t + 1) + b;
     }
 
     function finishLevel(scene) {
