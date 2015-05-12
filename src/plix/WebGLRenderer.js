@@ -427,7 +427,7 @@ define([
 
         // Perspective
         var matP = glm.mat4.create();
-        glm.mat4.perspective(matP, Math.PI/3, entity.scene.app.canvas.width/entity.scene.app.canvas.height, 0.1, 100000);
+        glm.mat4.perspective(matP, Math.PI/3, gl.drawingBufferWidth/gl.drawingBufferHeight, 0.1, 100000);
         gl.uniformMatrix4fv(this.shaders.mesh.u_P, false, new Float32Array(matP));
 
         // Upload to vertex buffer
@@ -448,8 +448,8 @@ define([
         this.bindSpriteProgram(gl);
 
         // width and height will be used to scale coordinates
-        var width = entity.scene.app.canvas.width;
-        var height = entity.scene.app.canvas.height;
+        var width = gl.drawingBufferWidth;
+        var height = gl.drawingBufferHeight;
         var offset = options.offset;
         var pos = {
             x: entity.transform.position.x - offset.x,
@@ -517,8 +517,8 @@ define([
         options = options || {};
 
         // width and height will be used to scale coordinates
-        var width = entity.scene.app.canvas.width;
-        var height = entity.scene.app.canvas.height;
+        var width = gl.drawingBufferWidth;
+        var height = gl.drawingBufferHeight;
         var offset = options.offset;
         var pos = {
             x: entity.transform.position.x - offset.x,
