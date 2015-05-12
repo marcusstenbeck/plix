@@ -13,12 +13,14 @@ define([
 
         this.type = 'graphics';
 
-        var img = new Image();
-        img.src = params.imagePath;
-        img.onload = function () {
-            img.isLoaded = true;
-            console.log('loaded image');
-        };
+        if(params.imagePath) {
+            var img = new Image();
+            img.src = params.imagePath;
+            img.onload = function () {
+                img.isLoaded = true;
+                console.log('loaded image');
+            };
+        }
 
         this.graphic = {
             type: '3d',

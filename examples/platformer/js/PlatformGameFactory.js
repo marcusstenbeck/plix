@@ -781,7 +781,6 @@ define([
         fsm.enterState('jumping');
 
         var gfx3d = new Graphics3DComponent({
-            imagePath: 'image/robot.png',
             scale: [options.width, options.height, options.width],
             color: [0,1,0,1]
         });
@@ -815,7 +814,6 @@ define([
         });
 
         var gfx3d = new Graphics3DComponent({
-            imagePath: 'image/robot.png',
             scale: [options.width, options.height, options.width]
         });
         wall.addComponent(gfx3d);
@@ -837,7 +835,6 @@ define([
         });
 
         var gfx3d = new Graphics3DComponent({
-            imagePath: 'image/robot.png',
             scale: [options.width, options.height, options.width],
             color: [1,0,0,1]
         });
@@ -864,7 +861,6 @@ define([
         };
 
         var gfx3d = new Graphics3DComponent({
-            imagePath: 'image/robot.png',
             scale: [options.width, options.height, options.width],
             color: [0,1,0,1]
         });
@@ -927,7 +923,6 @@ define([
             };
 
             var gfx3d = new Graphics3DComponent({
-                imagePath: 'image/robot.png',
                 scale: [options.width, options.height, options.width],
                 color: [1,1,0,1]
             });
@@ -969,7 +964,6 @@ define([
         });
 
         var gfx3d = new Graphics3DComponent({
-            imagePath: 'image/robot.png',
             scale: [options.width, options.height, options.width],
             color: [1,1,0,1]
         });
