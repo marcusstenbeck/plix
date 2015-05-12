@@ -399,7 +399,7 @@ define([
         // Light stuff
         var lightPosition = [options.offset.x, options.offset.y + 100, 150];
         gl.uniform3fv(this.shaders.mesh.u_lPos, new Float32Array(lightPosition));
-        var lightIntensity = [20];
+        var lightIntensity = [entity.scene._lightIntensity] || [20];
         gl.uniform1fv(this.shaders.mesh.u_lIntensity, new Float32Array(lightIntensity));
 
         // Model matrix
