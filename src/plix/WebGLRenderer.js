@@ -198,6 +198,11 @@ define([
         this.context = gl;
     }
 
+    WebGLRenderer.prototype.resize = function() {
+        var gl = this.context;
+        gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
+    };
+
     WebGLRenderer.prototype.bindSpriteProgram = function(gl) {
         // Shaders
         gl.useProgram(this.shaders.sprite);
@@ -394,7 +399,7 @@ define([
         // Light stuff
         var lightPosition = [options.offset.x, options.offset.y + 100, 150];
         gl.uniform3fv(this.shaders.mesh.u_lPos, new Float32Array(lightPosition));
-        var lightIntensity = [20];
+        var lightIntensity = [entity.scene._lightIntensity] || [20];
         gl.uniform1fv(this.shaders.mesh.u_lIntensity, new Float32Array(lightIntensity));
 
         // Model matrix
@@ -422,7 +427,7 @@ define([
 
         // Perspective
         var matP = glm.mat4.create();
-        glm.mat4.perspective(matP, Math.PI/3, entity.scene.app.canvas.width/entity.scene.app.canvas.height, 0.1, 100000);
+        glm.mat4.perspective(matP, Math.PI/3, gl.drawingBufferWidth/gl.drawingBufferHeight, 0.1, 100000);
         gl.uniformMatrix4fv(this.shaders.mesh.u_P, false, new Float32Array(matP));
 
         // Upload to vertex buffer
@@ -443,8 +448,8 @@ define([
         this.bindSpriteProgram(gl);
 
         // width and height will be used to scale coordinates
-        var width = entity.scene.app.canvas.width;
-        var height = entity.scene.app.canvas.height;
+        var width = gl.drawingBufferWidth;
+        var height = gl.drawingBufferHeight;
         var offset = options.offset;
         var pos = {
             x: entity.transform.position.x - offset.x,
@@ -512,8 +517,8 @@ define([
         options = options || {};
 
         // width and height will be used to scale coordinates
-        var width = entity.scene.app.canvas.width;
-        var height = entity.scene.app.canvas.height;
+        var width = gl.drawingBufferWidth;
+        var height = gl.drawingBufferHeight;
         var offset = options.offset;
         var pos = {
             x: entity.transform.position.x - offset.x,

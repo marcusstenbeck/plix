@@ -88,60 +88,465 @@ define([
         var c = 1;
         var d = duration;
 
-        return (t>=d) ? b+c : c*((t=t/d-1)*t*t + 1) + b;
+        return (t<=0) ? b : (t>=d) ? b+c : c*((t=t/d-1)*t*t + 1) + b;
     }
 
     function finishLevel(scene) {
         if(!finished) {
             finished = true;
 
+            scene.finishTime = scene.app.timeElapsed;
+            scene.levelTime = scene.finishTime - scene.startTime;
+
+            console.log('level time', scene.levelTime);
+            console.log('pickups collected', scene.pickups, '/', scene.totalPickups);
+
             /**
-             *  stop controls
+             *  Push player into finished state
              */
-
-
-            /**
-             *  display finish graphic
-             */
-
-            var fg = PlatformGameFactory.createFinishEffect(scene);
-
+            var player;
+            // find player
             for(var i = 0; i < scene.entities.length; i++) {
-                if(!!scene.entities[i].components.camera) {
-                    fg.camEnt = scene.entities[i];
-                    console.log('found it!');
+                if(scene.entities[i].components.physics.body.tag === 'player') {
+                    player = scene.entities[i];
                     break;
                 }
             }
+            
+            player.components.fsm._fsm.triggerEvent('finish');
 
-            fg.script = function(ent) {
-                if(!ent.startTime) ent.startTime = ent.scene.app.timeElapsed;
-
-                var dt = ent.scene.app.timeElapsed - ent.startTime;
-                var f = easeOutElastic(1000, dt);
-                
-                ent.transform.position.x = ent.camEnt.transform.position.x;
-                ent.transform.position.y = ent.camEnt.transform.position.y;
-
-                if(f === 1) return;
-                ent.components.graphics.graphic.scale.x = f;
-                ent.components.graphics.graphic.scale.y = f;
-            };
 
 
             /**
-             *  wait for keyboard input for next level
+             *  display finish text
              */
+
+
+            /** "SCOREBOARD" **/
+            var scoreString = [
+                'FINISH!',
+                '',
+                'TIME    ' + (scene.levelTime/1000).toFixed(1),
+                'PICKUPS ' + scene.pickups + '/' + scene.totalPickups
+            ].join('\n');
+
+            // The following code draws the "text" in figLayout
+            var textEntities = createBlockText(scoreString);
+            
+            var textPos = {
+                x: player.transform.position.x - 80,
+                y: player.transform.position.y + 120
+            };
+            
+            textEntities.forEach(function(ent) {
+                scene.attachEntity(ent);
+                setupTextBlockBehavior(ent, textPos);
+            });
+            
             setTimeout(function() {
-                scene.app.nextLevel();
-                finished = false;
+                textEntities.forEach(function(ent) {
+                    ent.destroy();
+
+                });
+
+                if(scene.app.currentLevelIndex >= scene.app.levelIds.length - 1) {
+                    textEntities = createBlockText('YOU BEAT\nTHE GAME!');
+                } else {
+                    textEntities = createBlockText('PRESS KEY\nTO CONTINUE');
+                }
+
+                textEntities.forEach(function(ent) {
+                    scene.attachEntity(ent);
+                    setupTextBlockBehavior(ent, textPos);
+                });
             }, 2000);
         }
     }
 
+    function setupTextBlockBehavior(ent, pos) {
+        pos = pos || { x:0, y:0 };
+        ent._startTime = !!ent.scene.app ? ent.scene.app.timeElapsed : 0;
+        ent._from = { x: pos.x, y: pos.y + 100*(2-1*Math.random()) };
+        ent._to = { x: ent.transform.position.x + pos.x, y: ent.transform.position.y + pos.y };
+
+        ent.script = function(ent) {
+            var time = ent.scene.app.timeElapsed - ent._startTime;
+            ent.transform.position.x = ent._to.x*easeOutElastic(2000, time) + ent._from.x*(1-easeOutElastic(2000, time));
+            ent.transform.position.y = ent._to.y*easeOutElastic(500, time) + ent._from.y*(1-easeOutElastic(500, time));
+        };
+    }
+
+    function createCharacterLayout(n) {
+        n = n.toString();
+
+        var characterLayout = [
+            [1, 1, 0],
+            [0, 0, 1],
+            [0, 1, 0],
+            [0, 0, 0],
+            [0, 1, 0],
+        ];
+        switch(n) {
+            // SPECIAL CHARACTERS
+            case '.':
+                characterLayout = [
+                    [0, 0, 0],
+                    [0, 0, 0],
+                    [0, 0, 0],
+                    [0, 0, 0],
+                    [0, 1, 0]];
+                break;
+            case ' ':
+                characterLayout = [
+                    [0, 0, 0],
+                    [0, 0, 0],
+                    [0, 0, 0],
+                    [0, 0, 0],
+                    [0, 0, 0]];
+                break;
+            case '/':
+                characterLayout = [
+                    [0, 0, 1],
+                    [0, 0, 1],
+                    [0, 1, 0],
+                    [1, 0, 0],
+                    [1, 0, 0]];
+                break;
+            case '!':
+                characterLayout = [
+                    [0, 1, 0],
+                    [0, 1, 0],
+                    [0, 1, 0],
+                    [0, 0, 0],
+                    [0, 1, 0]];
+                break;
+            case '?':
+                // Default thing is a question mark
+                break;
+
+            // NUMBERS
+            case '0':
+                characterLayout = [
+                    [0, 1, 0],
+                    [1, 0, 1],
+                    [1, 0, 1],
+                    [1, 0, 1],
+                    [0, 1, 0]];
+                break;
+            case '1':
+                characterLayout = [
+                    [0, 1, 0],
+                    [1, 1, 0],
+                    [0, 1, 0],
+                    [0, 1, 0],
+                    [1, 1, 1]];
+                break;
+            case '2':
+                characterLayout = [
+                    [1, 1, 0],
+                    [0, 0, 1],
+                    [0, 1, 0],
+                    [1, 0, 0],
+                    [1, 1, 1]];
+                break;
+            case '3':
+                characterLayout = [
+                    [1, 1, 0],
+                    [0, 0, 1],
+                    [0, 1, 0],
+                    [0, 0, 1],
+                    [1, 1, 0]];
+                break;
+            case '4':
+                characterLayout = [
+                    [1, 0, 1],
+                    [1, 0, 1],
+                    [1, 1, 1],
+                    [0, 0, 1],
+                    [0, 0, 1]];
+                break;
+            case '5':
+                characterLayout = [
+                    [1, 1, 1],
+                    [1, 0, 0],
+                    [1, 1, 0],
+                    [0, 0, 1],
+                    [1, 1, 0]];
+                break;
+            case '6':
+                characterLayout = [
+                    [0, 1, 1],
+                    [1, 0, 0],
+                    [1, 1, 0],
+                    [1, 0, 1],
+                    [0, 1, 0]];
+                break;
+            case '7':
+                characterLayout = [
+                    [1, 1, 1],
+                    [0, 0, 1],
+                    [0, 1, 0],
+                    [0, 1, 0],
+                    [0, 1, 0]];
+                break;
+            case '8':
+                characterLayout = [
+                    [0, 1, 0],
+                    [1, 0, 1],
+                    [0, 1, 0],
+                    [1, 0, 1],
+                    [0, 1, 0]];
+                break;
+            case '9':
+                characterLayout = [
+                    [0, 1, 0],
+                    [1, 0, 1],
+                    [0, 1, 1],
+                    [0, 0, 1],
+                    [1, 1, 0]];
+                break;
+
+            // ALPHABET
+            case 'a':
+                characterLayout = [
+                    [0, 1, 0],
+                    [1, 0, 1],
+                    [1, 1, 1],
+                    [1, 0, 1],
+                    [1, 0, 1]];
+                break;
+            case 'b':
+                characterLayout = [
+                    [1, 1, 0],
+                    [1, 0, 1],
+                    [1, 1, 0],
+                    [1, 0, 1],
+                    [1, 1, 0]];
+                break;
+            case 'c':
+                characterLayout = [
+                    [0, 1, 1],
+                    [1, 0, 0],
+                    [1, 0, 0],
+                    [1, 0, 0],
+                    [0, 1, 1]];
+                break;
+            case 'd':
+                characterLayout = [
+                    [1, 1, 0],
+                    [1, 0, 1],
+                    [1, 0, 1],
+                    [1, 0, 1],
+                    [1, 1, 0]];
+                break;
+            case 'e':
+                characterLayout = [
+                    [1, 1, 1],
+                    [1, 0, 0],
+                    [1, 1, 0],
+                    [1, 0, 0],
+                    [1, 1, 1]];
+                break;
+            case 'f':
+                characterLayout = [
+                    [1, 1, 1],
+                    [1, 0, 0],
+                    [1, 1, 0],
+                    [1, 0, 0],
+                    [1, 0, 0]];
+                break;
+            case 'g':
+                characterLayout = [
+                    [0, 1, 1],
+                    [1, 0, 0],
+                    [1, 1, 1],
+                    [1, 0, 1],
+                    [0, 1, 1]];
+                break;
+            case 'h':
+                characterLayout = [
+                    [1, 0, 1],
+                    [1, 0, 1],
+                    [1, 1, 1],
+                    [1, 0, 1],
+                    [1, 0, 1]];
+                break;
+            case 'i':
+                characterLayout = [
+                    [1, 1, 1],
+                    [0, 1, 0],
+                    [0, 1, 0],
+                    [0, 1, 0],
+                    [1, 1, 1]];
+                break;
+            case 'j':
+                characterLayout = [
+                    [1, 1, 1],
+                    [0, 0, 1],
+                    [0, 0, 1],
+                    [1, 0, 1],
+                    [1, 1, 1]];
+                break;
+            case 'k':
+                characterLayout = [
+                    [1, 0, 1],
+                    [1, 0, 1],
+                    [1, 1, 0],
+                    [1, 0, 1],
+                    [1, 0, 1]];
+                break;
+            case 'l':
+                characterLayout = [
+                    [1, 0, 0],
+                    [1, 0, 0],
+                    [1, 0, 0],
+                    [1, 0, 0],
+                    [1, 1, 1]];
+                break;
+            case 'm':
+                characterLayout = [
+                    [1, 0, 1],
+                    [1, 1, 1],
+                    [1, 0, 1],
+                    [1, 0, 1],
+                    [1, 0, 1]];
+                break;
+            case 'n':
+                characterLayout = [
+                    [1, 1, 0],
+                    [1, 0, 1],
+                    [1, 0, 1],
+                    [1, 0, 1],
+                    [1, 0, 1]];
+                break;
+            case 'o':
+                characterLayout = [
+                    [0, 1, 0],
+                    [1, 0, 1],
+                    [1, 0, 1],
+                    [1, 0, 1],
+                    [0, 1, 0]];
+                break;
+            case 'p':
+                characterLayout = [
+                    [1, 1, 0],
+                    [1, 0, 1],
+                    [1, 1, 0],
+                    [1, 0, 0],
+                    [1, 0, 0]];
+                break;
+            case 'r':
+                characterLayout = [
+                    [1, 1, 0],
+                    [1, 0, 1],
+                    [1, 1, 0],
+                    [1, 0, 1],
+                    [1, 0, 1]];
+                break;
+            case 's':
+                characterLayout = [
+                    [0, 1, 1],
+                    [1, 0, 0],
+                    [0, 1, 0],
+                    [0, 0, 1],
+                    [1, 1, 0]];
+                break;
+            case 't':
+                characterLayout = [
+                    [1, 1, 1],
+                    [0, 1, 0],
+                    [0, 1, 0],
+                    [0, 1, 0],
+                    [0, 1, 0]];
+                break;
+            case 'u':
+                characterLayout = [
+                    [1, 0, 1],
+                    [1, 0, 1],
+                    [1, 0, 1],
+                    [1, 0, 1],
+                    [1, 1, 1]];
+                break;
+            case 'v':
+                characterLayout = [
+                    [1, 0, 1],
+                    [1, 0, 1],
+                    [1, 0, 1],
+                    [1, 0, 1],
+                    [0, 1, 0]];
+                break;
+            case 'y':
+                characterLayout = [
+                    [1, 0, 1],
+                    [1, 0, 1],
+                    [0, 1, 0],
+                    [0, 1, 0],
+                    [0, 1, 0]];
+                break;
+        }
+
+        return characterLayout;
+    }
+
+    function createStringLayout(n) {
+        n = n.toString().toLowerCase();
+        
+        var characterLayout;
+        var character;
+        var numberLayout = [[],[],[],[],[]];
+        var line = 0;
+        var charHeight = 5;
+        for(var i = 0; i < n.length; i++) {
+            character = n.substr(i,1);
+            
+            if(character === '\n') {
+                numberLayout = numberLayout.concat([[],[],[],[],[],[]]);
+                line++;
+                continue;
+            }
+            
+            characterLayout = createCharacterLayout(character);
+            for(var j = 0; j < characterLayout.length; j++) {
+                numberLayout[line + line*charHeight + j] = numberLayout[line + line*charHeight + j].concat(characterLayout[j].concat([0]));
+            }
+        }
+        
+        return numberLayout;
+    }
+
+
+    function createBlockText(string, size) {
+        size = size || 5;
+        var figLayout = createStringLayout(string);
+        var entities = [];
+        var ent;
+
+        for(var r = 0; r < figLayout.length; r++) {
+                for(var c = 0; c < figLayout[r].length; c++) {
+                    if(figLayout[r][c]) {
+
+                        ent = new Entity();
+
+                        ent.transform.position.x = size*c;
+                        ent.transform.position.y = -size*r;
+
+                        var rand = Math.random();
+                        ent.components.graphics = new Graphics3DComponent({
+                            scale: [size, size, size],
+                            color: [rand, 1-rand, Math.random(), 1]
+                        });
+
+                        entities.push(ent);
+                    }
+                }
+            }
+
+        return entities;
+    }
+
     function PlatformGameFactory() {}
 
-    PlatformGameFactory.createFinishEffect = function(scene, options) {
+    PlatformGameFactory.createFinishEffect = function(scene /*, options*/ ) {
         var finishText = new Entity();
         scene.attachEntity(finishText);
 
@@ -258,9 +663,13 @@ define([
 
                 // Super ugly way of doing this...better though a bus or something
                 playerEntity.scene._groundedHappened = true;
+
+                // Make the light flicker
+                ent.scene._lightManager.flicker(ent.scene.app.timeElapsed - 500);
             })
             .addTransition('jump', 'jumping')
-            .addTransition('die', 'dead');
+            .addTransition('die', 'dead')
+            .addTransition('finish', 'finished');
 
         fsm.createState('jumping')
             .onEnter(function(ent) {
@@ -270,10 +679,13 @@ define([
                 };
             })
             .addTransition('ground', 'grounded')
-            .addTransition('die', 'dead');
+            .addTransition('die', 'dead')
+            .addTransition('finish', 'finished');
 
         fsm.createState('dead')
             .onEnter(function(ent) {
+                var timeEnteredState = ent.scene.app.timeElapsed;
+                var timeUntilInputAccepted = 1000;
                 var dieTime = 2000;
                 
                 // TODO: It's dumb to need to do this.
@@ -304,20 +716,71 @@ define([
 
                     var f = 1 - easeOutBounce(0.5*dieTime, dt);
                     if(f === 1) return;
-                    ent.components.graphics.graphic.scale.x = f;
-                    ent.components.graphics.graphic.scale.y = f;
+                    ent.components.graphics.graphic.scale[0] *= f;
+                    ent.components.graphics.graphic.scale[1] *= f;
+                    
+                    if(ent.components.input.keys[options.keys.left] ||
+                        ent.components.input.keys[options.keys.right] ||
+                        ent.components.input.keys[options.keys.jump]) {
+                        if(ent.scene.app.timeElapsed > (timeEnteredState + timeUntilInputAccepted)) {
+                            scene.app.playerDied();
+                            finished = false;
+                        }
+                    }
                 };
 
-                setTimeout(function() {
-                    ent.scene.app.playerDied();
-                }, dieTime);
+                var textEntities = createBlockText('YOU DIED\n\nLIVES  ' + (scene.app.lives-1));
+
+                textEntities.forEach(function(tEnt) {
+                    ent.scene.attachEntity(tEnt);
+                    setupTextBlockBehavior(tEnt, {
+                        x: ent.transform.position.x - 90,
+                        y: ent.transform.position.y + 80
+                    });
+                });
+
+            });
+
+        fsm.createState('finished')
+            .onEnter(function(ent) {
+                console.log('FINISH STATE');
+                var timeEnteredState = ent.scene.app.timeElapsed;
+                var timeUntilInputAccepted = 2000;
+                delete ent.components.physics;
+
+                ent.script = function(ent) {
+
+                    if(!ent.startTime) ent.startTime = ent.scene.app.timeElapsed;
+
+                    var dt = ent.scene.app.timeElapsed - ent.startTime;
+
+                    var shakeScale = 20*easeOutCubic(0.25*timeUntilInputAccepted, dt);
+                    ent.components.graphics.graphic.scale[0] = ent.components.graphics.graphic.scale[0] + shakeScale*Math.cos(ent.scene.app.timeElapsed/50);
+                    ent.components.graphics.graphic.scale[1] = ent.components.graphics.graphic.scale[1] + shakeScale*Math.sin(ent.scene.app.timeElapsed/70);
+
+                    var f = 1 - easeOutCubic(0.5*timeUntilInputAccepted, dt - 250);
+                    if(f === 1) return;
+                    ent.components.graphics.graphic.scale[0] *= f;
+                    ent.components.graphics.graphic.scale[1] *= f;
+                
+
+                    if(ent.components.input.keys[options.keys.left] ||
+                        ent.components.input.keys[options.keys.right] ||
+                        ent.components.input.keys[options.keys.jump]) {
+                        if(ent.scene.app.timeElapsed > (timeEnteredState + timeUntilInputAccepted)) {
+                            scene.app.nextLevel();
+                            finished = false;
+                        }
+                    }
+                };
+
+
             });
         
         // Start in the jumping state
         fsm.enterState('jumping');
 
         var gfx3d = new Graphics3DComponent({
-            imagePath: 'image/robot.png',
             scale: [options.width, options.height, options.width],
             color: [0,1,0,1]
         });
@@ -351,7 +814,6 @@ define([
         });
 
         var gfx3d = new Graphics3DComponent({
-            imagePath: 'image/robot.png',
             scale: [options.width, options.height, options.width]
         });
         wall.addComponent(gfx3d);
@@ -373,7 +835,6 @@ define([
         });
 
         var gfx3d = new Graphics3DComponent({
-            imagePath: 'image/robot.png',
             scale: [options.width, options.height, options.width],
             color: [1,0,0,1]
         });
@@ -400,7 +861,6 @@ define([
         };
 
         var gfx3d = new Graphics3DComponent({
-            imagePath: 'image/robot.png',
             scale: [options.width, options.height, options.width],
             color: [0,1,0,1]
         });
@@ -437,7 +897,7 @@ define([
             });
             frag.addComponent(pc);
 
-            var timeUntilDestroy = 1000 + 500*Math.random();
+            var timeUntilDestroy = 1000 + 1500*Math.random();
             setTimeout(function() {
                 frag.destroy();
             }, timeUntilDestroy);
@@ -452,12 +912,17 @@ define([
             });
 
             frag.script = function(ent) {
+                if(!ent._startTime) ent._startTime = ent.scene.app.timeElapsed;
+
                 ent.components.graphics.graphic.color[0] = 0.7 + 0.3*Math.cos(3*2*Math.PI*ent.scene.app.timeElapsed/1000);
                 ent.components.graphics.graphic.color[1] = 0.7 + 0.3*Math.cos(3*2*Math.PI*ent.scene.app.timeElapsed/1000);
+
+                ent.components.graphics.graphic.scale[0] = options.width*(1-easeOutCubic(500, ent.scene.app.timeElapsed - ent._startTime - (timeUntilDestroy - 500)));
+                ent.components.graphics.graphic.scale[1] = options.height*(1-easeOutCubic(500, ent.scene.app.timeElapsed - ent._startTime - (timeUntilDestroy - 500)));
+                ent.components.graphics.graphic.scale[2] = options.width*(1-easeOutCubic(500, ent.scene.app.timeElapsed - ent._startTime - (timeUntilDestroy - 500)));
             };
 
             var gfx3d = new Graphics3DComponent({
-                imagePath: 'image/robot.png',
                 scale: [options.width, options.height, options.width],
                 color: [1,1,0,1]
             });
@@ -471,6 +936,8 @@ define([
         pickup.components.physics.on('collision', function(otherBody, collisionVector) {
             if(otherBody.tag === 'player') {
                 console.log('yo i am a pickup and i got picked up');
+
+                scene.pickups += 1;
 
                 var w = this.body.shape.width/2;
                 var h = this.body.shape.height/2;
@@ -497,7 +964,6 @@ define([
         });
 
         var gfx3d = new Graphics3DComponent({
-            imagePath: 'image/robot.png',
             scale: [options.width, options.height, options.width],
             color: [1,1,0,1]
         });
@@ -508,24 +974,65 @@ define([
             ent.components.graphics.graphic.color[1] = 0.7 + 0.3*Math.cos(2*Math.PI*ent.scene.app.timeElapsed/1000);
         };
                    
+        scene.totalPickups += 1;
 
         return pickup;
     };
 
-    PlatformGameFactory.createLevel = function(levelNumber) {
+    PlatformGameFactory.createLevel = function(levelNumber, app) {
         if(!levelNumber) return;
 
+        var level;
         switch(levelNumber) {
             case 1:
-                return this.createLevel1();
+                level = this.createLevel1();
+                break;
 
             case 2:
-                return this.createLevel2();
+                level = this.createLevel2();
+                break;
 
             case 3:
-                return this.createLevel3();
+                level = this.createLevel3();
+                break;
         }
+
+        level.startTime = app.timeElapsed;
+        level.pickups = 0;
+
+        addLightManager(level);
+
+        return level;
     };
+
+    function addLightManager(scene) {
+        var lightManager = new Entity();
+        scene.attachEntity(lightManager);
+        scene._lightManager = lightManager;
+        lightManager._inputs = [];
+        lightManager.flicker = function(time) {
+            if(!time) return;
+
+            lightManager._inputs.push(time);
+        };
+        lightManager.script = function(ent) {
+            if(!ent._initialized) {
+                ent._initialized = true;
+                ent.flicker(ent.scene.app.timeElapsed);
+            }
+
+            var intensity = 20;
+            var scale = 1;
+            
+            if(lightManager._inputs.length > 0) {
+                lightManager._inputs.forEach(function(time) {
+                    scale *= easeOutBounce(1000, ent.scene.app.timeElapsed - time);
+                });
+            }
+
+            ent.scene._lightIntensity = intensity*scale*scale;
+        };
+    }
 
     PlatformGameFactory.createLevel1 = function() {
 
@@ -533,6 +1040,7 @@ define([
          * Create main scene
          */
         var scene = new Scene('main');
+        scene.totalPickups = 0;
 
         // Create player
         var player = PlatformGameFactory.createPlayer(scene, {
@@ -541,9 +1049,9 @@ define([
             width: 50,
             height: 70,
             keys: {
-                left: 'A',
-                right: 'S',
-                jump: 'K'
+                left: 'LEFT',
+                right: 'RIGHT',
+                jump: 'SPACE'
             }
         });
 
@@ -597,6 +1105,7 @@ define([
          * Create main scene
          */
         var scene = new Scene('main');
+        scene.totalPickups = 0;
 
         // Create player
         var player = PlatformGameFactory.createPlayer(scene, {
@@ -605,9 +1114,9 @@ define([
             width: 50,
             height: 70,
             keys: {
-                left: 'A',
-                right: 'S',
-                jump: 'K'
+                left: 'LEFT',
+                right: 'RIGHT',
+                jump: 'SPACE'
             }
         });
 
@@ -664,6 +1173,7 @@ define([
          * Create main scene
          */
         var scene = new Scene('main');
+        scene.totalPickups = 0;
 
         // Create player
         var player = PlatformGameFactory.createPlayer(scene, {
@@ -672,9 +1182,9 @@ define([
             width: 50,
             height: 70,
             keys: {
-                left: 'A',
-                right: 'S',
-                jump: 'K'
+                left: 'LEFT',
+                right: 'RIGHT',
+                jump: 'SPACE'
             }
         });
 
@@ -746,57 +1256,39 @@ define([
         return scene;
     };
 
-    PlatformGameFactory.createMenu = function(app) {
-
-        var figLayout = [
-            [1, 1, 1,  0,  1, 0, 1,  0,  1, 0, 1,  0,  1, 1, 1],
-            [0, 0, 1,  0,  1, 0, 1,  0,  1, 1, 1,  0,  1, 0, 1],
-            [0, 0, 1,  0,  1, 0, 1,  0,  1, 0, 1,  0,  1, 1, 1],
-            [1, 0, 1,  0,  1, 0, 1,  0,  1, 0, 1,  0,  1, 0, 0],
-            [1, 1, 1,  0,  1, 1, 1,  0,  1, 0, 1,  0,  1, 0, 0],
-
-            [0, 0, 0,  0,  0, 0, 0,  0,  0, 0, 0,  0,  0, 0, 0,  0,  0, 0, 0],
-            [0, 0, 0,  0,  0, 0, 0,  0,  0, 0, 0,  0,  0, 0, 0,  0,  0, 0, 0],
-
-            [0, 0, 0,  0,  1, 1, 0,  0,  1, 0, 1,  0,  1, 1, 0,  0,  1, 1, 1],
-            [0, 0, 0,  0,  1, 0, 1,  0,  1, 0, 1,  0,  1, 0, 1,  0,  1, 0, 0],
-            [0, 0, 0,  0,  1, 0, 1,  0,  1, 0, 1,  0,  1, 0, 1,  0,  1, 1, 0],
-            [0, 0, 0,  0,  1, 0, 1,  0,  1, 0, 1,  0,  1, 0, 1,  0,  1, 0, 0],
-            [0, 0, 0,  0,  1, 1, 0,  0,  1, 1, 1,  0,  1, 1, 0,  0,  1, 1, 1]
-        ];
+    PlatformGameFactory.createMenu = function() {
 
         /**
          * Create menu scene
          */
         var scene = new Scene('menu');
 
-        // The following code draws the "text" in figLayout
-        var ent;
-        for(var r = 0; r < figLayout.length; r++) {
-            for(var c = 0; c < figLayout[r].length; c++) {
-                if(figLayout[r][c]) {
+        var textEntities = createBlockText('JUMP\nDUDE', 15);
 
-                    ent = new Entity();
-                    scene.attachEntity(ent);
+        textEntities.forEach(function(ent) {
+            scene.attachEntity(ent);
+            setupTextBlockBehavior(ent, {
+                x: -100,
+                y: 120
+            });
+        });
 
-                    ent.transform.position.x = 10*c - 85;
-                    ent.transform.position.y = -10*r + 100;
-
-                    var rand = Math.random();
-                    ent.components.graphics = new Graphics3DComponent({
-                        imagePath: 'image/robot.png',
-                        scale: [10, 10, 10],
-                        color: [rand, 1-rand, Math.random(), 1]
-                    });
-                }
-            }
+        function loadLevel1() {
+            console.log('kddd');
+            scene.app.loadLevel(1);
+            window.removeEventListener('keydown', loadLevel1);
         }
+        var whatevs = textEntities[0].script;
+        textEntities[0].script = function(ent) {
+            whatevs(ent);
 
+            window.addEventListener('keydown', loadLevel1);
+        };
 
-        ent.script = function(ent) {
-            if(ent.scene.app.input.mouse.leftButton) {
-                ent.scene.app.pushScene(PlatformGameFactory.createLevel1(ent.scene.app));
-            }
+        addLightManager(scene);
+
+        scene.onEnter = function() {
+            scene._lightManager.flicker(scene.app.timeElapsed);
         };
 
         return scene;
@@ -819,8 +1311,8 @@ define([
         camera.startTime = 0;
         camera.script = function(ent) {
             // YOLO: ent.components.camera.follow is totally ducktyped
-            ent.transform.position.x += 0.1 * (ent.components.camera.follow.transform.position.x - ent.transform.position.x);// + 30 * Math.cos(scene.app.timeElapsed * 0.005);
-            ent.transform.position.y += 0.1 * (ent.components.camera.follow.transform.position.y - ent.transform.position.y);// + 30 * Math.sin(scene.app.timeElapsed * 0.005);
+            ent.transform.position.x += 0.1 * (ent.components.camera.follow.transform.position.x - ent.transform.position.x);
+            ent.transform.position.y += 0.1 * (ent.components.camera.follow.transform.position.y - ent.transform.position.y);
 
 
 
