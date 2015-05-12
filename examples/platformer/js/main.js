@@ -35,6 +35,12 @@ define([
     app.nextLevel = function nextLevel() {
         app.popScene();
 
+        var currentScene = app.scenes[app.scenes.length-1];
+
+        if(typeof currentScene.onEnter === 'function') {
+            currentScene.onEnter();
+        }
+
         app.currentLevelIndex++;
         
         if(app.currentLevelIndex >= app.levelIds.length) {
@@ -60,6 +66,12 @@ define([
 
     app.playerDied = function playerDied() {
         app.popScene();
+
+        var currentScene = app.scenes[app.scenes.length-1];
+
+        if(typeof currentScene.onEnter === 'function') {
+            currentScene.onEnter();
+        }
 
         console.log('Lives left:', --app.lives);
 
