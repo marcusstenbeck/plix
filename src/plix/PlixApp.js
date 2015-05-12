@@ -34,22 +34,22 @@ define([
 		};
 
 		// Track mouse position
-		this.canvas.addEventListener('mousemove', function(e) {
+		app.canvas.addEventListener('mousemove', function(e) {
 			app.input.mouse.x = e.offsetX;
 			app.input.mouse.y = e.offsetY;
 		});
 
 		// Track mouse click state
-		this.canvas.addEventListener('mousedown', function(/*e*/) {
+		app.canvas.addEventListener('mousedown', function(/*e*/) {
 			app.input.mouse.leftButton = true;
 		});
-		this.canvas.addEventListener('mouseup', function(/*e*/) {
+		app.canvas.addEventListener('mouseup', function(/*e*/) {
 			app.input.mouse.leftButton = false;
 		});
 
 		var key;
 		// Listen to keydown
-		document.addEventListener('keydown', function(e) {
+		window.addEventListener('keydown', function(e) {
 
 			key = Util.keyForCode(e.keyCode);
 
@@ -62,7 +62,7 @@ define([
 		});
 
 		// Listen to keyup
-		document.addEventListener('keyup', function(e) {
+		window.addEventListener('keyup', function(e) {
 
 			key = Util.keyForCode(e.keyCode);
 
