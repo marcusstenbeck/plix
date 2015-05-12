@@ -1049,9 +1049,9 @@ define([
             width: 50,
             height: 70,
             keys: {
-                left: 'A',
-                right: 'S',
-                jump: 'K'
+                left: 'LEFT',
+                right: 'RIGHT',
+                jump: 'SPACE'
             }
         });
 
@@ -1114,9 +1114,9 @@ define([
             width: 50,
             height: 70,
             keys: {
-                left: 'A',
-                right: 'S',
-                jump: 'K'
+                left: 'LEFT',
+                right: 'RIGHT',
+                jump: 'SPACE'
             }
         });
 
@@ -1182,9 +1182,9 @@ define([
             width: 50,
             height: 70,
             keys: {
-                left: 'A',
-                right: 'S',
-                jump: 'K'
+                left: 'LEFT',
+                right: 'RIGHT',
+                jump: 'SPACE'
             }
         });
 
