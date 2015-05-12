@@ -198,6 +198,11 @@ define([
         this.context = gl;
     }
 
+    WebGLRenderer.prototype.resize = function() {
+        var gl = this.context;
+        gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
+    };
+
     WebGLRenderer.prototype.bindSpriteProgram = function(gl) {
         // Shaders
         gl.useProgram(this.shaders.sprite);

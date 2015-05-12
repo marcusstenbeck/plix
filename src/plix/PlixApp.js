@@ -74,6 +74,16 @@ define([
 			app.scenes[app.scenes.length - 1].broadcastMessage('keyup:' + key);
 		});
 
+		// Resize canvas
+		function resizeCanvas() {
+			app.canvas.width = app.canvas.offsetWidth;
+			app.canvas.height = app.canvas.offsetHeight;
+			app.renderer.resize();
+		}
+		resizeCanvas();
+		window.addEventListener('resize', resizeCanvas);
+
+
 		// Set app dimensions
 		app.width = app.canvas.width;
 		app.height = app.canvas.height;
