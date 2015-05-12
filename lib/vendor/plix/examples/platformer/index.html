@@ -15,17 +15,19 @@
             margin: 0 auto;
         }
 
-        #game-state { font-weight: bold; }
+        #game {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            width: 100%;
+            height: 100%;
+        }
     </style>
 </head>
 <body>
-    <div style="margin: 0 auto; text-align: center;">
-        <canvas id="game" width="800" height="500"></canvas>
-    </div>
-    <div>
-        <p><b>Controls</b> &mdash; A/S : K/L</p>
-    </div>
-
+    <canvas id="game"></canvas>
     <script data-main="js/main" src="../../lib/vendor/requirejs/require.js"></script>
 </body>
 </html>

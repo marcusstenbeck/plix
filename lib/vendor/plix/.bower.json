@@ -1,6 +1,6 @@
 {
   "name": "plix",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "homepage": "https://github.com/marcusstenbeck/plix",
   "authors": [
     "marcusstenbeck <marcus.stenbeck@gmail.com>"
@@ -22,11 +22,11 @@
     "physix": "marcusstenbeck/physix",
     "gl-matrix": "~2.2.1"
   },
-  "_release": "0.0.3",
+  "_release": "0.0.4",
   "_resolution": {
     "type": "version",
-    "tag": "v0.0.3",
-    "commit": "b58f9155467d9c920a07b6ad97144d81569a40bb"
+    "tag": "v0.0.4",
+    "commit": "ef5672a832e4420cc932c67988fa6ab63c3ab94c"
   },
   "_source": "git://github.com/marcusstenbeck/plix.git",
   "_target": "*",
