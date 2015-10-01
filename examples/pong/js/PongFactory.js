@@ -113,14 +113,14 @@ define([
                 entity: ball,
                 type: Body.DYNAMIC,
                 width: options.width,
-                height: options.height,
-                onCollision: function(otherBody) {
-                    if(otherBody.tag === 'goal1' || otherBody.tag === 'goal2') {
-                        console.log('Goal collision!', otherBody.tag);
-                        ball.scene.app.popScene();
-                    }
-                }
+                height: options.height
             });
+        pc.on('collision', function(otherBody) {
+            if(otherBody.tag === 'goal1' || otherBody.tag === 'goal2') {
+                console.log('Goal collision!', otherBody.tag);
+                ball.scene.app.popScene();
+            }
+        });
         ball.addComponent(pc);
 
         return ball;
