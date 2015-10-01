@@ -50,16 +50,16 @@ define([
 
         
             ctx.beginPath();
-            ctx.moveTo(entity.transform.position.x - 2.5, entity.transform.position.y - 2.5);
-            ctx.lineTo(entity.transform.position.x + 2.5, entity.transform.position.y + 2.5);
-            ctx.moveTo(entity.transform.position.x + 2.5, entity.transform.position.y - 2.5);
-            ctx.lineTo(entity.transform.position.x - 2.5, entity.transform.position.y + 2.5);
+            ctx.moveTo(entity.transform.position.x - 2.5, (scene.app.canvas.height) - (entity.transform.position.y - 2.5));
+            ctx.lineTo(entity.transform.position.x + 2.5, (scene.app.canvas.height) - (entity.transform.position.y + 2.5));
+            ctx.moveTo(entity.transform.position.x + 2.5, (scene.app.canvas.height) - (entity.transform.position.y - 2.5));
+            ctx.lineTo(entity.transform.position.x - 2.5, (scene.app.canvas.height) - (entity.transform.position.y + 2.5));
 
             ctx.stroke();
 
             if(entity.components.physics) {
                 ctx.strokeRect(entity.transform.position.x - entity.components.physics.body.shape.width/2 + 0.5,
-                                    entity.transform.position.y - entity.components.physics.body.shape.height/2 + 0.5,
+                                    (scene.app.canvas.height) - (entity.transform.position.y + entity.components.physics.body.shape.height/2 + 0.5),
                                     entity.components.physics.body.shape.width - 1,
                                     entity.components.physics.body.shape.height - 1);
             }
@@ -90,21 +90,23 @@ define([
 
         
             ctx.beginPath();
-            ctx.moveTo(entity.transform.position.x - 2.5 - camPosition.x, entity.transform.position.y - 2.5 - camPosition.y);
-            ctx.lineTo(entity.transform.position.x + 2.5 - camPosition.x, entity.transform.position.y + 2.5 - camPosition.y);
-            ctx.moveTo(entity.transform.position.x + 2.5 - camPosition.x, entity.transform.position.y - 2.5 - camPosition.y);
-            ctx.lineTo(entity.transform.position.x - 2.5 - camPosition.x, entity.transform.position.y + 2.5 - camPosition.y);
+            ctx.moveTo(entity.transform.position.x - 2.5 - camPosition.x, (scene.app.canvas.height) - (entity.transform.position.y - 2.5 - camPosition.y));
+            ctx.lineTo(entity.transform.position.x + 2.5 - camPosition.x, (scene.app.canvas.height) - (entity.transform.position.y + 2.5 - camPosition.y));
+            ctx.moveTo(entity.transform.position.x + 2.5 - camPosition.x, (scene.app.canvas.height) - (entity.transform.position.y - 2.5 - camPosition.y));
+            ctx.lineTo(entity.transform.position.x - 2.5 - camPosition.x, (scene.app.canvas.height) - (entity.transform.position.y + 2.5 - camPosition.y));
 
             ctx.stroke();
 
             if(entity.components.physics) {
                 ctx.strokeRect(entity.transform.position.x - entity.components.physics.body.shape.width/2 + 0.5 - camPosition.x,
-                                    entity.transform.position.y - entity.components.physics.body.shape.height/2 + 0.5 - camPosition.y,
+                                    (scene.app.canvas.height) - (entity.transform.position.y + entity.components.physics.body.shape.height/2 + 0.5 - camPosition.y),
                                     entity.components.physics.body.shape.width - 1,
                                     entity.components.physics.body.shape.height - 1);
             }
         });
     };
+
+    CanvasRenderer.prototype.resize = function() { /* ... */ };
 
     return CanvasRenderer;
 });
